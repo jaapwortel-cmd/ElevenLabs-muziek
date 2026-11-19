@@ -21,7 +21,7 @@ commit fab10f3). Zie LEES-MIJ.txt voor het plan.
   (zelfde afspraak als in Jaaps andere programma's: sleutel uit Dropbox /Certificaat Jaap Wortel, nooit op GitHub).
 - Bouwminuten sparen: wijzigingen verzamelen en samen pushen.
 
-## Idee: samenvoegen (Jaap, 19 nov 2026, nog NIET bouwen)
+## Samenvoegen met de Media Suite (Jaap, 19 nov 2026)
 
 - Jaap wil de functies van "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite, MIT,
   "ElevenLabs Media Suite contributors") in dit programma samenvoegen. NIET in Python: alles in C# (.NET 4.8, WinForms)
@@ -35,3 +35,9 @@ commit fab10f3). Zie LEES-MIJ.txt voor het plan.
 - Tip: Andres "ElevenLabs Speech Generator" (https://github.com/OnjLouis/ElevenLabsSpeechGenerator, MIT, ook C# .NET 4.8)
   heeft de meeste van deze functies al in C#. Die code is waarschijnlijk makkelijker over te nemen dan de Media Suite
   na te bouwen. Naam en licentie van alle makers laten staan.
+
+- 19 nov 2026: Jaap koos C# (niet Rust, niet Python). Het API-deel van de Media Suite is omgezet naar C# in
+  src/MediaSuite (namespace ElevenLabsMusicGenerator.MediaSuite), zie src/MediaSuite/LEES-MIJ.txt. Bouwt zonder fouten
+  met Andres code (net48, C# 5); niet getest met een echte sleutel. Wordt nog niet meegebouwd (Build.ps1 leest alleen src\*.cs).
+  Volgende stap: de vensters in WinForms. Lokaal bouwen: dotnet-sdk-8.0 + NuGet Microsoft.NETFramework.ReferenceAssemblies.net48
+  1.0.3, GenerateAssemblyInfo=false, alle src/*.cs + NAudio.dll + System.Web.Extensions e.d. (zie Build.ps1).

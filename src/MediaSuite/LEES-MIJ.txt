@@ -1,0 +1,61 @@
+Media Suite in C# - klaar om samen te voegen
+
+Wat is dit?
+De functies van "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
+versie 1.2.0, commit 16e6ff3, MIT-licentie, "ElevenLabs Media Suite contributors"), omgezet van Python naar C#
+(.NET Framework 4.8, C# 5, geen extra pakketten), in dezelfde stijl als Andres ElevenLabsMusicClient
+(HttpWebRequest + JavaScriptSerializer). Omgezet op 19 november 2026 op verzoek van Jaap.
+
+Webadressen en veldnamen gecontroleerd in het officiele Python-pakket elevenlabs 2.79.0.
+Getest: bouwt zonder fouten of waarschuwingen samen met Andres code (net48, C# 5).
+Nog NIET getest met een echte ElevenLabs-sleutel.
+
+Deze map wordt nog NIET meegebouwd: Build.ps1 neemt alleen de .cs-bestanden direct in src.
+Bij het samenvoegen: de drie .cs-bestanden naar src verplaatsen (of Build.ps1 ook src\MediaSuite laten lezen).
+
+Bestanden
+- MediaSuiteClient.cs   Basis: verzoeken met JSON, multipart en query, opnieuw proberen bij 429/5xx,
+                         foutmeldingen via Andres ElevenLabsApiException.
+- MediaSuiteFeatures.cs Alle functies:
+    TextToSpeech            tekst naar spraak (stem, model, stem-instellingen, taal, seed, uitspraaklijsten)
+    TextToDialogue          gesprek met meerdere stemmen (eleven_v3)
+    SpeechToSpeech          stem omzetten (je opname in een andere stem)
+    IsolateVoice            achtergrondgeluid weghalen
+    SpeechToText            spraak naar tekst (scribe_v2, sprekers herkennen, geluiden taggen, srt/txt extra)
+    ForcedAlignment         tekst uitlijnen op een opname (+ Subtitles.ToSrt voor ondertitels)
+    DesignVoice / SaveDesignedVoice   stem ontwerpen uit een beschrijving en bewaren
+    CloneVoice / EditVoice / DeleteVoice   stem klonen (alleen met toestemming), aanpassen, verwijderen
+    ListVoices / GetVoice / GetSharedVoices / GetAllSharedVoices / FetchPreview   stemmen zoeken en beluisteren
+    StartDubbing / GetDubbingStatus / GetDubbedFile   nasynchroniseren
+    ListPronunciationDictionaries / CreatePronunciationDictionary(FromFile)   uitspraaklijsten
+    ListHistory / DownloadHistoryItem / DeleteHistoryItem   geschiedenis
+    GetUser / GetSubscription / ListModels   account, tegoed, modellen
+- MediaSuiteHelpers.cs  MediaSuiteModels (modellen en formaten), AssetNaming (namen als
+                         "regen_op_dak-001-a1b2c3.mp3" met .json ernaast), Subtitles (SRT), JobQueue (achtergrond).
+
+Niet overgenomen
+- Muziek en geluidseffecten: zitten al in Andres programma (en beter).
+- De Python-vensters (wxPython): die moeten in WinForms opnieuw gemaakt worden, zie hieronder.
+
+Nog te doen: de vensters (WinForms, toegankelijk zoals Andres vensters)
+Idee uit de Media Suite: een keuzelijst "Functie" (Alt+F) die het paneel eronder wisselt; de focus springt
+niet vanzelf weg. Velden per paneel in de Media Suite:
+- Tekst naar spraak: tekst, stem, model, formaat, stability, similarity, style, (geavanceerd) zero retention,
+  Maken, Afspelen, Opslaan als.
+- Gesprek: regels met stem + tekst, Regel toevoegen, Alles wissen, model, formaat, taalcode, seed,
+  tekstnormalisatie, stability, uitspraaklijsten, Maken, Afspelen, Opslaan als.
+- Stemmen zoeken: Mijn stemmen / Openbare bibliotheek, zoeken, sorteren, geslacht, leeftijd, accent, taal,
+  gebruik, kenmerken, alleen uitgelicht, Meer resultaten, details, Voorbeeld, Gebruik in spraak/gesprek, Stem-ID kopieren.
+- Stem ontwerpen: beschrijving, voorbeeldtekst, model, tekst zelf maken, beschrijving verbeteren, guidance,
+  loudness, quality, seed, prompt strength, referentie-opname.
+- Stem klonen: naam, beschrijving, opnames toevoegen/verwijderen, Klonen.
+- Stem omzetten: opname, doelstem, model, stem-instellingen, seed, formaat, achtergrondgeluid weg.
+- Achtergrondgeluid weghalen: opname, Start.
+- Spraak naar tekst: bestand of URL, model, taal, geluiden taggen, sprekers herkennen (aantal, drempel),
+  tijdstempels, temperature, seed, meerdere kanalen, extra formaten, Uitschrijven, JSON opslaan, resultaat.
+- Nasynchroniseren: bestand of URL, doeltaal, brontaal, naam, sprekers, modus, start/eind (ms), accent,
+  watermerk, hoogste resolutie, achtergrond weg, scheldwoorden filteren, geen stemkloon, Start, Status, Downloaden.
+- Tekst uitlijnen: opname, tekst, Uitlijnen, SRT opslaan, resultaat.
+- Uitspraaklijsten: lijst, Vernieuwen, nieuwe lijst (naam, regels "woord=alias"), Maken, PLS importeren.
+- Geschiedenis: lijst, Vernieuwen, Afspelen, Opslaan, Verwijderen.
+Alle teksten in het Nederlands en Engels (menu Taal), net als de rest van de vertaling.
