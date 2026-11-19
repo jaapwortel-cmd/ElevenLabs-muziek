@@ -1,0 +1,20 @@
+ElevenLabs Muziek (Nederlandse versie) - voorbereiding
+
+Wat is dit?
+Hier staat de broncode van "ElevenLabs Music and Sound FX Generator" van Andre Louis.
+Opgehaald op 19 november 2026 van https://github.com/OnjLouis/ElevenLabsMusicGenerator
+(laatste wijziging daar: commit fab10f30e22fa89a72cf320334cecb8a8aef8551, 1 november 2026).
+De code is precies zoals bij Andre, met zijn hele geschiedenis. Ons eigen werk komt daar bovenop.
+
+Licentie: MIT (zie origineel/LICENSE.txt). Aanpassen en vertalen mag, als de naam van
+Andre Louis en de licentie erin blijven staan.
+
+Plan (Jaap, 19 nov 2026)
+- Jaap wil het programma later samen met Claude in het Nederlands maken.
+- Teksten uit de code naar een tekstbestand (Nederlands en Engels, menu Taal), zoals in Jaaps programma's.
+- Handleiding (Manual.html) ook in het Nederlands.
+- Let op: het programma zoekt zelf updates bij Andre (src/UpdateService.cs, ProjectUrl).
+  Die moet aangepast worden, anders komt de Engelse versie terug.
+- Ondertekenen met Jaaps certificaat (zie CLAUDE.md).
+- Andres nieuwe versies ophalen: git fetch andre (remote https://github.com/OnjLouis/ElevenLabsMusicGenerator.git) en samenvoegen.
+- Code: C#, .NET Framework 4.8, WinForms, NAudio 1.10.0. Ongeveer 5200 regels in src. De Mac-versie (map Mac) is Swift.
