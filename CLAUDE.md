@@ -15,7 +15,8 @@ commit fab10f3). Zie LEES-MIJ.txt voor het plan.
 - 19 nov 2026: alleen Andres code neergezet, nog niets vertaald. Jaap heeft Andre op 19 nov via een GitHub-issue
   ("Request: Dutch language support" in OnjLouis/ElevenLabsMusicGenerator) gevraagd of hij zelf Nederlands wil toevoegen;
   Jaap biedt de vertaling en het testen aan;
-  hoor van Jaap of hij antwoord kreeg voordat je begint.
+  Andre antwoordde (19 nov): hij maakt GEEN Nederlandse versie en geen menu Taal (te veel onderhoud), maar Nederlandse
+  liedteksten werken al (alleen de stijlbeschrijving moet in het Engels). Dus: wij maken de Nederlandse versie zelf.
 - Plan: teksten naar een tekstbestand (nl en en, menu Taal), handleiding vertalen, de updatefunctie
   (src/UpdateService.cs, ProjectUrl) naar deze repo laten wijzen, ondertekenen met Jaaps certificaat
   (zelfde afspraak als in Jaaps andere programma's: sleutel uit Dropbox /Certificaat Jaap Wortel, nooit op GitHub).
