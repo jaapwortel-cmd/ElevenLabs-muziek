@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,9 +33,14 @@ namespace ElevenLabsMusicGenerator
 
         public string ConfirmationIntro(int pendingCount)
         {
+            var duration = IsSoundEffect && AutomaticDuration ? L.T("Automatisch, elk hooguit 30 seconden.", "Automatic, up to 30 seconds each.") :
+                (LengthMilliseconds / 1000m).ToString("0.###") + L.T(" seconden per stuk.", " seconds each.");
+            if (!L.Engels)
+            {
+                var soort = IsSoundEffect ? (pendingCount == 1 ? "geluidseffect" : "geluidseffecten") : (pendingCount == 1 ? "muzieknummer" : "muzieknummers");
+                return "Wil je " + pendingCount + (pendingCount < Variations ? " resterende " : " ") + soort + " genereren?" + Environment.NewLine + "Duur: " + duration;
+            }
             var kind = IsSoundEffect ? "sound effect" : "music track";
-            var duration = IsSoundEffect && AutomaticDuration ? "Automatic, up to 30 seconds each." :
-                (LengthMilliseconds / 1000m).ToString("0.###") + " seconds each.";
             return "Generate " + pendingCount + (pendingCount < Variations ? " remaining " : " ") + kind +
                 (pendingCount == 1 ? "?" : "s?") + Environment.NewLine + "Duration: " + duration;
         }
@@ -67,13 +72,13 @@ namespace ElevenLabsMusicGenerator
         {
             var data = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<Dictionary<string, object>>(json);
             if (data == null || !data.ContainsKey("model_id") || !IsSoundEffectsModel(Convert.ToString(data["model_id"])))
-                throw new InvalidDataException("This is not a saved sound effects prompt.");
+                throw new InvalidDataException(L.T("Dit is geen bewaarde prompt voor een geluidseffect.", "This is not a saved sound effects prompt."));
             var result = new MusicGenerationRequest { ModelId = SoundEffectsModel, Prompt = Convert.ToString(data["text"]),
                 AutomaticDuration = data["duration_seconds"] == null, SoundEffectSeconds = data["duration_seconds"] == null ? 5 : Convert.ToDecimal(data["duration_seconds"]),
                 Loop = Convert.ToBoolean(data["loop"]), PromptInfluence = Convert.ToDecimal(data["prompt_influence"]), OutputFormat = Convert.ToString(data["output_format"]) };
             if (string.IsNullOrWhiteSpace(result.Prompt) || result.Prompt.Length > SoundEffectsPromptLimit || result.SoundEffectSeconds < 0.5m || result.SoundEffectSeconds > 30 || result.PromptInfluence < 0 || result.PromptInfluence > 1 ||
                 (result.OutputFormat != "pcm_44100" && result.OutputFormat != "mp3_44100_128" && result.OutputFormat != "mp3_44100_192"))
-                throw new InvalidDataException("The saved sound effects settings are invalid.");
+                throw new InvalidDataException(L.T("De bewaarde instellingen voor het geluidseffect kloppen niet.", "The saved sound effects settings are invalid."));
             return result;
         }
     }

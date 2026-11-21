@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,9 +33,9 @@ namespace ElevenLabsMusicGenerator
         {
             var parsedType = new ContentType(contentType);
             if (!parsedType.MediaType.Equals("multipart/mixed", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(parsedType.Boundary))
-                throw new InvalidDataException("ElevenLabs did not return a multipart music response.");
+                throw new InvalidDataException(L.T("ElevenLabs stuurde geen antwoord in delen.", "ElevenLabs did not return a multipart music response."));
             var boundary = parsedType.Boundary;
-            if (boundary.Length > 200) throw new InvalidDataException("The music response boundary is too long.");
+            if (boundary.Length > 200) throw new InvalidDataException(L.T("Het antwoord heeft een te lange scheiding.", "The music response boundary is too long."));
             var marker = Encoding.ASCII.GetBytes("\r\n--" + boundary);
             var metadataPath = audioPath + ".metadata.part";
             var result = new MultipartMusicResponse();
@@ -44,7 +44,7 @@ namespace ElevenLabsMusicGenerator
             {
                 using (var input = File.OpenRead(multipartPath))
                 {
-                    if (ReadLine(input) != "--" + boundary) throw new InvalidDataException("The music response has an invalid opening boundary.");
+                    if (ReadLine(input) != "--" + boundary) throw new InvalidDataException(L.T("Het antwoord begint verkeerd.", "The music response has an invalid opening boundary."));
                     while (true)
                     {
                         var headers = ReadHeaders(input);
@@ -52,8 +52,8 @@ namespace ElevenLabsMusicGenerator
                         headers.TryGetValue("Content-Type", out partType);
                         var isJson = !string.IsNullOrEmpty(partType) && partType.IndexOf("json", StringComparison.OrdinalIgnoreCase) >= 0;
                         var target = isJson ? metadataPath : audioPath;
-                        if (isJson && result.MetadataJson != null) throw new InvalidDataException("The music response contains duplicate metadata.");
-                        if (!isJson && audioSeen) throw new InvalidDataException("The music response contains duplicate audio.");
+                        if (isJson && result.MetadataJson != null) throw new InvalidDataException(L.T("Het antwoord bevat dubbele details.", "The music response contains duplicate metadata."));
+                        if (!isJson && audioSeen) throw new InvalidDataException(L.T("Het antwoord bevat dubbel geluid.", "The music response contains duplicate audio."));
                         bool last;
                         using (var output = new FileStream(target, FileMode.Create, FileAccess.Write, FileShare.None))
                             last = CopyPart(input, output, marker, isJson ? 10L * 1024 * 1024 : 1024L * 1024 * 1024);
@@ -66,7 +66,7 @@ namespace ElevenLabsMusicGenerator
                         if (last) break;
                     }
                 }
-                if (!audioSeen || new FileInfo(audioPath).Length == 0) throw new InvalidDataException("The music response did not include audio.");
+                if (!audioSeen || new FileInfo(audioPath).Length == 0) throw new InvalidDataException(L.T("Het antwoord bevat geen geluid.", "The music response did not include audio."));
                 return result;
             }
             finally
@@ -83,10 +83,10 @@ namespace ElevenLabsMusicGenerator
                 var line = ReadLine(input);
                 if (line.Length == 0) return headers;
                 var separator = line.IndexOf(':');
-                if (separator < 1) throw new InvalidDataException("The music response has an invalid part header.");
+                if (separator < 1) throw new InvalidDataException(L.T("Het antwoord heeft een verkeerde kop.", "The music response has an invalid part header."));
                 headers[line.Substring(0, separator)] = line.Substring(separator + 1).Trim();
             }
-            throw new InvalidDataException("The music response has too many part headers.");
+            throw new InvalidDataException(L.T("Het antwoord heeft te veel koppen.", "The music response has too many part headers."));
         }
 
         private static string ReadLine(Stream input)
@@ -95,7 +95,7 @@ namespace ElevenLabsMusicGenerator
             while (bytes.Count < 8192)
             {
                 var value = input.ReadByte();
-                if (value < 0) throw new EndOfStreamException("The music response ended unexpectedly.");
+                if (value < 0) throw new EndOfStreamException(L.T("Het antwoord stopte onverwacht.", "The music response ended unexpectedly."));
                 if (value == '\n')
                 {
                     if (bytes.Count > 0 && bytes[bytes.Count - 1] == '\r') bytes.RemoveAt(bytes.Count - 1);
@@ -103,7 +103,7 @@ namespace ElevenLabsMusicGenerator
                 }
                 bytes.Add((byte)value);
             }
-            throw new InvalidDataException("A music response header is too long.");
+            throw new InvalidDataException(L.T("Een kop in het antwoord is te lang.", "A music response header is too long."));
         }
 
         private static bool CopyPart(FileStream input, Stream output, byte[] marker, long maximumBytes)
@@ -114,24 +114,24 @@ namespace ElevenLabsMusicGenerator
             while (true)
             {
                 var count = input.Read(buffer, carried, 64 * 1024);
-                if (count == 0) throw new EndOfStreamException("The music response ended inside a part.");
+                if (count == 0) throw new EndOfStreamException(L.T("Het antwoord stopte midden in een deel.", "The music response ended inside a part."));
                 var length = carried + count;
                 var boundaryAt = FindBytes(buffer, length, marker);
                 if (boundaryAt >= 0)
                 {
                     output.Write(buffer, 0, boundaryAt);
                     written += boundaryAt;
-                    if (written > maximumBytes) throw new InvalidDataException("A music response part is too large.");
+                    if (written > maximumBytes) throw new InvalidDataException(L.T("Een deel van het antwoord is te groot.", "A music response part is too large."));
                     input.Position -= length - boundaryAt - marker.Length;
                     var suffix = ReadLine(input);
-                    if (suffix != string.Empty && suffix != "--") throw new InvalidDataException("The music response has an invalid boundary suffix.");
+                    if (suffix != string.Empty && suffix != "--") throw new InvalidDataException(L.T("Het antwoord heeft een verkeerde scheiding.", "The music response has an invalid boundary suffix."));
                     return suffix == "--";
                 }
                 carried = Math.Min(marker.Length - 1, length);
                 var safe = length - carried;
                 output.Write(buffer, 0, safe);
                 written += safe;
-                if (written > maximumBytes) throw new InvalidDataException("A music response part is too large.");
+                if (written > maximumBytes) throw new InvalidDataException(L.T("Een deel van het antwoord is te groot.", "A music response part is too large."));
                 Buffer.BlockCopy(buffer, safe, buffer, 0, carried);
             }
         }

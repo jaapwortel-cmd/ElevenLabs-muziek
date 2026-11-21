@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -23,7 +23,7 @@ namespace ElevenLabsMusicGenerator
         public static string LogFolder { get { return Path.Combine(UserFolder, "Logs"); } }
         public static string LogPath { get { return Path.Combine(LogFolder, "Latest.log"); } }
         public static string PreviousLogPath { get { return Path.Combine(LogFolder, "Previous.log"); } }
-        public static string ManualPath { get { return Path.Combine(AppFolder, "Manual.html"); } }
+        public static string ManualPath { get { return Path.Combine(AppFolder, L.T("Handleiding.html", "Manual.html")); } }
 
         public static void EnsureUserFolders()
         {
@@ -47,12 +47,12 @@ namespace ElevenLabsMusicGenerator
                 catch (Exception ex)
                 {
                     if (!(ex is FormatException || ex is CryptographicException || ex is IOException || ex is UnauthorizedAccessException)) throw;
-                    ApiKeyLoadMessage = "The saved API key cannot be unlocked on this Windows account. Enter it again in Preferences.";
+                    ApiKeyLoadMessage = L.T("De bewaarde API-sleutel kan op dit Windows-account niet worden geopend. Zet hem opnieuw in Voorkeuren.", "The saved API key cannot be unlocked on this Windows account. Enter it again in Preferences.");
                     return string.Empty;
                 }
                 try { RemovePlaintextKeys(); RemoveReadableSharedKey(); }
-                catch (IOException) { ApiKeyLoadMessage = "The API key is protected, but an older key copy could not be removed."; }
-                catch (UnauthorizedAccessException) { ApiKeyLoadMessage = "The API key is protected, but an older key copy could not be removed."; }
+                catch (IOException) { ApiKeyLoadMessage = L.T("De API-sleutel is beveiligd, maar een oudere kopie kon niet worden weggehaald.", "The API key is protected, but an older key copy could not be removed."); }
+                catch (UnauthorizedAccessException) { ApiKeyLoadMessage = L.T("De API-sleutel is beveiligd, maar een oudere kopie kon niet worden weggehaald.", "The API key is protected, but an older key copy could not be removed."); }
                 return key;
             }
 
@@ -63,14 +63,14 @@ namespace ElevenLabsMusicGenerator
                 catch (Exception ex)
                 {
                     if (!(ex is FormatException || ex is CryptographicException || ex is IOException || ex is UnauthorizedAccessException)) throw;
-                    ApiKeyLoadMessage = "An older protected API key belongs to another Windows account or cannot be read. Enter the key for this computer in Preferences.";
+                    ApiKeyLoadMessage = L.T("Een oudere beveiligde API-sleutel hoort bij een ander Windows-account of is niet leesbaar. Zet de sleutel voor deze computer in Voorkeuren.", "An older protected API key belongs to another Windows account or cannot be read. Enter the key for this computer in Preferences.");
                     return string.Empty;
                 }
                 try { SaveApiKey(sharedKey); }
                 catch (Exception ex)
                 {
                     if (!(ex is FormatException || ex is CryptographicException || ex is IOException || ex is UnauthorizedAccessException)) throw;
-                    ApiKeyLoadMessage = "The older protected API key could not be moved to this computer's key file.";
+                    ApiKeyLoadMessage = L.T("De oudere beveiligde API-sleutel kon niet worden verplaatst.", "The older protected API key could not be moved to this computer's key file.");
                     return string.Empty;
                 }
                 return sharedKey;
@@ -87,7 +87,7 @@ namespace ElevenLabsMusicGenerator
             catch (Exception ex)
             {
                 if (!(ex is FormatException || ex is CryptographicException || ex is IOException || ex is UnauthorizedAccessException)) throw;
-                ApiKeyLoadMessage = "The existing API key could not be protected. Its plaintext copy may still be present. Check the User folder before using the app.";
+                ApiKeyLoadMessage = L.T("De API-sleutel kon niet worden beveiligd. Er staat misschien nog een leesbare kopie. Kijk in de map User.", "The existing API key could not be protected. Its plaintext copy may still be present. Check the User folder before using the app.");
                 return string.Empty;
             }
         }
@@ -173,7 +173,9 @@ namespace ElevenLabsMusicGenerator
             using (var identity = WindowsIdentity.GetCurrent())
             using (var hash = SHA256.Create())
             {
-                var user = identity.User == null ? Environment.UserName : identity.User.Value;
+                string user;
+                try { user = identity.User == null ? Environment.UserName : identity.User.Value; }
+                catch (NotImplementedException) { user = Environment.UserName; } // Mono (alleen bij de controle op Linux)
                 var data = Encoding.UTF8.GetBytes(Environment.MachineName + "\n" + user);
                 return BitConverter.ToString(hash.ComputeHash(data), 0, 8).Replace("-", "").ToLowerInvariant();
             }

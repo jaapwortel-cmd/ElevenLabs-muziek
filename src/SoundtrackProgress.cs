@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace ElevenLabsMusicGenerator
 {
@@ -19,11 +19,11 @@ namespace ElevenLabsMusicGenerator
             {
                 switch (Stage)
                 {
-                    case SoundtrackStage.Uploading: return "Uploading videos.";
-                    case SoundtrackStage.Waiting: return "Upload complete. Waiting for ElevenLabs to generate the soundtrack. This can take several minutes, even for a short video. No generation percentage or time remaining is available.";
-                    case SoundtrackStage.Downloading: return "Receiving soundtrack from ElevenLabs.";
-                    case SoundtrackStage.Saving: return "Saving soundtrack recordings.";
-                    default: return "Preparing video upload.";
+                    case SoundtrackStage.Uploading: return L.T("Video's opsturen.", "Uploading videos.");
+                    case SoundtrackStage.Waiting: return L.T("Opgestuurd. Wachten tot ElevenLabs de muziek heeft gemaakt. Dat kan een paar minuten duren, ook bij een korte video. Er is geen percentage of resterende tijd bekend.", "Upload complete. Waiting for ElevenLabs to generate the soundtrack. This can take several minutes, even for a short video. No generation percentage or time remaining is available.");
+                    case SoundtrackStage.Downloading: return L.T("Muziek ontvangen van ElevenLabs.", "Receiving soundtrack from ElevenLabs.");
+                    case SoundtrackStage.Saving: return L.T("Opnames bewaren.", "Saving soundtrack recordings.");
+                    default: return L.T("Opsturen voorbereiden.", "Preparing video upload.");
                 }
             }
         }
@@ -37,7 +37,7 @@ namespace ElevenLabsMusicGenerator
             if (Stage == SoundtrackStage.Uploading || Stage == SoundtrackStage.Downloading)
             {
                 text += Environment.NewLine + (Stage == SoundtrackStage.Uploading ? "Sent: " : "Received: ") + Bytes.ToString("N0") + " bytes";
-                if (TotalBytes > 0) text += " of " + TotalBytes.ToString("N0") + " (" + Percent + " percent)";
+                if (TotalBytes > 0) text += L.T(" van ", " of ") + TotalBytes.ToString("N0") + " (" + Percent + L.T(" procent)", " percent)");
                 text += ".";
             }
             return text;
@@ -46,7 +46,7 @@ namespace ElevenLabsMusicGenerator
         {
             var total = Math.Max(0, (long)elapsed.TotalSeconds);
             var minutes = total / 60; var seconds = total % 60;
-            return (minutes > 0 ? minutes + (minutes == 1 ? " minute, " : " minutes, ") : "") + seconds + (seconds == 1 ? " second" : " seconds");
+            return (minutes > 0 ? minutes + (minutes == 1 ? L.T(" minuut, ", " minute, ") : L.T(" minuten, ", " minutes, ")) : "") + seconds + (seconds == 1 ? L.T(" seconde", " second") : L.T(" seconden", " seconds"));
         }
     }
 }

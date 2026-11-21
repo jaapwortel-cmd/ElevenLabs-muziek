@@ -1,0 +1,93 @@
+# Bouwt ElevenLabs Muziek en Spraak op Windows, controleert de toegankelijkheid in het Nederlands en het Engels,
+# draait Andres proeven en zet de zip op de tak "exe-builds", zodat Claude hem kan ondertekenen en doorsturen.
+name: ElevenLabs Muziek en Spraak maken
+
+on:
+  push:
+    branches-ignore:
+      - exe-builds
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'Dependencies/**'
+      - '*.html'
+      - 'LICENSE.txt'
+      - 'Build.ps1'
+      - 'Test.ps1'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bouwen-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROEF: 'PROEF 1'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: EXE bouwen (met de C#-compiler van .NET Framework, zoals Build.ps1)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          .\Build.ps1 -OutputRoot uit
+          $v = (Get-Item -LiteralPath 'uit\portable\ElevenLabsMusicGenerator.exe').VersionInfo.FileVersion
+          Write-Host ('Versie in de EXE: ' + $v)
+          "VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Controle op namen en Alt-letters (Nederlands en Engels)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = Start-Process -FilePath 'uit\portable\ElevenLabsMusicGenerator.exe' -ArgumentList @('--controle', "`"$PWD\controle.txt`"") -PassThru -Wait
+          Get-Content -LiteralPath 'controle.txt' -Encoding UTF8 | Write-Host
+          Get-Content -LiteralPath 'controle.txt' -Encoding UTF8 | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          if ($p.ExitCode -ne 0) { throw 'De controle vond problemen.' }
+
+      - name: Proeven van Andre Louis (in het Engels)
+        continue-on-error: true
+        shell: powershell
+        run: .\Test.ps1 -WorkRoot proefmap
+
+      - name: Proefstart (het programma moet opstarten en netjes afsluiten)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = Start-Process -FilePath 'uit\portable\ElevenLabsMusicGenerator.exe' -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) { throw ('Het programma stopte meteen, code ' + $p.ExitCode) }
+          [void]$p.CloseMainWindow()
+          if (-not $p.WaitForExit(15000)) { $p.Kill(); throw 'Het programma sloot niet af.' }
+          Write-Host 'Opstarten en afsluiten: goed.'
+
+      - name: Toegankelijkheid (namen, Tab-volgorde en menu's voor de schermlezer)
+        # Zelfde techniek als NVDA, JAWS en Verteller (UI Automation). Mag de bouw nog niet stoppen: kijk in de samenvatting.
+        continue-on-error: true
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tools\Toegankelijkheid.ps1 -Exe 'uit\portable\ElevenLabsMusicGenerator.exe'
+
+      - name: Zip op de tak exe-builds zetten
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $naam = 'ElevenLabs Muziek en Spraak ' + $env:VERSION + ' ' + $env:PROEF + '.zip'
+          Copy-Item -LiteralPath 'uit\ElevenLabsMusicGenerator.zip' -Destination $naam
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout --orphan exe-builds
+          git rm -r -q --cached .
+          git add -f -- $naam
+          if (Test-Path 'controle.txt') { git add -f -- 'controle.txt' }
+          if (Test-Path 'toegankelijkheid.txt') { git add -f -- 'toegankelijkheid.txt' }
+          git commit -q -m ('ElevenLabs Muziek en Spraak ' + $env:VERSION + ' ' + $env:PROEF)
+          if ($LASTEXITCODE) { throw 'Commit mislukt.' }
+          git push -f origin exe-builds
+          if ($LASTEXITCODE) { throw 'Push mislukt.' }

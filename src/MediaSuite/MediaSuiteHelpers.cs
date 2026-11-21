@@ -1,4 +1,4 @@
-// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
+﻿// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
 // MIT-licentie, Copyright (c) 2026 ElevenLabs Media Suite contributors):
 // src/api/models.py, src/config/naming.py, src/api/forced_alignment.py (to_srt) en src/workers/job_queue.py.
 using System;
@@ -66,19 +66,19 @@ namespace ElevenLabsMusicGenerator.MediaSuite
     /// </summary>
     internal static class AssetNaming
     {
-        public static readonly string[] Categories = { "sounds", "music", "voices", "dialogue" };
+        public static readonly string[] Categories = { "Spraak", "Gesprekken", "Stem omzetten", "Schoon geluid", "Stemvoorbeelden", "Nagesynchroniseerd", "Geschiedenis", "Teksten" };
 
         public static string Slugify(string prompt, int maxWords = 3)
         {
-            if (string.IsNullOrWhiteSpace(prompt)) return "untitled";
+            if (string.IsNullOrWhiteSpace(prompt)) return "zonder_naam";
             var decomposed = prompt.Normalize(NormalizationForm.FormKD);
             var ascii = new StringBuilder();
             foreach (var c in decomposed) if (c < 128) ascii.Append(c);
             var cleaned = Regex.Replace(ascii.ToString().ToLowerInvariant(), "[^a-z0-9]+", " ").Trim();
-            if (cleaned.Length == 0) return "untitled";
+            if (cleaned.Length == 0) return "zonder_naam";
             var slug = string.Join("_", cleaned.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Take(maxWords));
             if (slug.Length > 48) slug = slug.Substring(0, 48);
-            return slug.Length == 0 ? "untitled" : slug;
+            return slug.Length == 0 ? "zonder_naam" : slug;
         }
 
         public static int NextCounter(string directory, string slug)
@@ -109,7 +109,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         /// <summary>Kiest een nieuw pad in rootFolder\category. Schrijft de .json als meta niet null is (het geluid zelf niet).</summary>
         public static string NextAssetPath(string rootFolder, string category, string prompt, string suffix, IDictionary<string, object> meta, out string metaPath)
         {
-            if (!Categories.Contains(category)) throw new ArgumentException("Unknown asset category: " + category);
+            if (!Categories.Contains(category)) throw new ArgumentException("Onbekende map: " + category);
             var directory = Path.Combine(rootFolder, category);
             Directory.CreateDirectory(directory);
             var slug = Slugify(prompt);

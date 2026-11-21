@@ -1,4 +1,4 @@
-// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
+﻿// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
 // MIT-licentie, Copyright (c) 2026 ElevenLabs Media Suite contributors), src/api/*.py.
 // Muziek en geluidseffecten zitten al in Andres ElevenLabsMusicClient en zijn hier daarom niet overgenomen.
 using System;
@@ -244,7 +244,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
 
         public AudioResult TextToSpeech(TextToSpeechRequest r, CancellationToken cancel = default(CancellationToken))
         {
-            if (r == null || string.IsNullOrWhiteSpace(r.Text)) throw new ArgumentException("Text is required.");
+            if (r == null || string.IsNullOrWhiteSpace(r.Text)) throw new ArgumentException(L.T("Typ eerst een tekst.", "Type a text first."));
             var body = new Dictionary<string, object> { { "text", r.Text }, { "model_id", MediaSuiteModels.Resolve("tts", r.ModelId) } };
             if (r.Settings != null) body["voice_settings"] = r.Settings.ToDictionary();
             Put(body, "language_code", r.LanguageCode);
@@ -267,12 +267,12 @@ namespace ElevenLabsMusicGenerator.MediaSuite
 
         public AudioResult TextToDialogue(DialogueRequest r, CancellationToken cancel = default(CancellationToken))
         {
-            if (r == null || r.Lines.Count == 0) throw new ArgumentException("The dialogue must contain at least one line.");
+            if (r == null || r.Lines.Count == 0) throw new ArgumentException(L.T("Het gesprek heeft nog geen regels.", "The dialogue has no lines yet."));
             var inputs = new List<object>();
             for (var i = 0; i < r.Lines.Count; i++)
             {
-                if (string.IsNullOrWhiteSpace(r.Lines[i].Text)) throw new ArgumentException("Line " + (i + 1) + " has no text.");
-                if (string.IsNullOrWhiteSpace(r.Lines[i].VoiceId)) throw new ArgumentException("Line " + (i + 1) + " has no voice.");
+                if (string.IsNullOrWhiteSpace(r.Lines[i].Text)) throw new ArgumentException(L.T("Regel ", "Line ") + (i + 1) + L.T(" heeft geen tekst.", " has no text."));
+                if (string.IsNullOrWhiteSpace(r.Lines[i].VoiceId)) throw new ArgumentException(L.T("Regel ", "Line ") + (i + 1) + L.T(" heeft geen stem.", " has no voice."));
                 inputs.Add(new Dictionary<string, object> { { "text", r.Lines[i].Text }, { "voice_id", r.Lines[i].VoiceId } });
             }
             var body = new Dictionary<string, object> { { "inputs", inputs }, { "model_id", MediaSuiteModels.Resolve("dialogue", r.ModelId) } };
@@ -289,7 +289,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         public AudioResult SpeechToSpeech(SpeechToSpeechRequest r, CancellationToken cancel = default(CancellationToken))
         {
             RequireFile(r == null ? null : r.AudioPath);
-            if (string.IsNullOrWhiteSpace(r.VoiceId)) throw new ArgumentException("A target voice is required.");
+            if (string.IsNullOrWhiteSpace(r.VoiceId)) throw new ArgumentException(L.T("Kies eerst een stem.", "Choose a voice first."));
             var form = new Dictionary<string, object> { { "model_id", MediaSuiteModels.Resolve("sts", r.ModelId) } };
             if (r.Settings != null) form["voice_settings"] = Json.Serialize(r.Settings.ToDictionary());
             Put(form, "seed", r.Seed);
@@ -318,7 +318,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         public Dictionary<string, object> SpeechToText(SpeechToTextRequest r, CancellationToken cancel = default(CancellationToken))
         {
             if (r == null || (string.IsNullOrEmpty(r.AudioPath) && string.IsNullOrEmpty(r.CloudStorageUrl)))
-                throw new ArgumentException("Choose an audio file or a cloud storage URL.");
+                throw new ArgumentException(L.T("Kies eerst een opname of een webadres.", "Choose a recording or a web address first."));
             var form = new Dictionary<string, object> { { "model_id", MediaSuiteModels.Resolve("stt", r.ModelId) }, { "tag_audio_events", r.TagAudioEvents } };
             Put(form, "language_code", r.LanguageCode);
             Put(form, "num_speakers", r.NumSpeakers);
@@ -346,7 +346,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         public Dictionary<string, object> ForcedAlignment(string audioPath, string transcript, CancellationToken cancel = default(CancellationToken))
         {
             RequireFile(audioPath);
-            if (string.IsNullOrWhiteSpace(transcript)) throw new ArgumentException("A transcript is required.");
+            if (string.IsNullOrWhiteSpace(transcript)) throw new ArgumentException(L.T("Typ eerst de tekst die in de opname gesproken wordt.", "Type the text spoken in the recording first."));
             return SendJson("POST", "v1/forced-alignment", null, null, new Dictionary<string, object> { { "text", transcript } },
                 new[] { new UploadFile("file", audioPath) }, cancel);
         }
@@ -356,7 +356,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         /// <summary>Maakt voorbeeldstemmen. Bewaar een ervan met SaveDesignedVoice.</summary>
         public List<VoicePreview> DesignVoice(VoiceDesignRequest r, out string previewText, CancellationToken cancel = default(CancellationToken))
         {
-            if (r == null || string.IsNullOrWhiteSpace(r.VoiceDescription)) throw new ArgumentException("A voice description is required.");
+            if (r == null || string.IsNullOrWhiteSpace(r.VoiceDescription)) throw new ArgumentException(L.T("Beschrijf eerst de stem.", "Describe the voice first."));
             var body = new Dictionary<string, object> { { "voice_description", r.VoiceDescription } };
             Put(body, "model_id", r.ModelId);
             Put(body, "text", r.Text);
@@ -401,8 +401,8 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         public Dictionary<string, object> CloneVoice(string name, IList<string> samplePaths, string description = null,
             Dictionary<string, string> labels = null, bool? removeBackgroundNoise = null, CancellationToken cancel = default(CancellationToken))
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A name is required.");
-            if (samplePaths == null || samplePaths.Count == 0) throw new ArgumentException("Choose at least one recording.");
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(L.T("Typ eerst een naam.", "Type a name first."));
+            if (samplePaths == null || samplePaths.Count == 0) throw new ArgumentException(L.T("Voeg eerst minstens een opname toe.", "Add at least one recording first."));
             var files = new List<UploadFile>();
             foreach (var path in samplePaths) { RequireFile(path); files.Add(new UploadFile("files", path)); }
             var form = new Dictionary<string, object> { { "name", name } };
@@ -484,6 +484,14 @@ namespace ElevenLabsMusicGenerator.MediaSuite
             return all;
         }
 
+        /// <summary>Zet een stem uit de openbare bibliotheek bij je eigen stemmen (POST v1/voices/add/{public_user_id}/{voice_id}).</summary>
+        public string AddSharedVoice(string publicOwnerId, string voiceId, string newName, CancellationToken cancel = default(CancellationToken))
+        {
+            if (string.IsNullOrWhiteSpace(publicOwnerId) || string.IsNullOrWhiteSpace(voiceId)) throw new ArgumentException(L.T("Deze stem kan niet worden toegevoegd.", "This voice cannot be added."));
+            var body = new Dictionary<string, object> { { "new_name", string.IsNullOrWhiteSpace(newName) ? voiceId : newName } };
+            return Str(SendJson("POST", "v1/voices/add/" + Uri.EscapeDataString(publicOwnerId) + "/" + Uri.EscapeDataString(voiceId), null, body, null, null, cancel), "voice_id") ?? voiceId;
+        }
+
         public VoiceInfo GetVoice(string voiceId, CancellationToken cancel = default(CancellationToken))
         {
             return ToVoice(SendJson("GET", "v1/voices/" + Uri.EscapeDataString(voiceId), cancel: cancel));
@@ -497,18 +505,18 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         {
             Uri uri;
             if (!Uri.TryCreate(previewUrl, UriKind.Absolute, out uri) || uri.Scheme != Uri.UriSchemeHttps)
-                throw new ArgumentException("Refusing non-HTTPS preview URL.");
+                throw new ArgumentException(L.T("Dit voorbeeld heeft geen veilig webadres (https).", "This preview has no secure (https) address."));
             var host = uri.Host.ToLowerInvariant();
             var allowed = false;
             foreach (var suffix in PreviewHosts) if (host == suffix || host.EndsWith("." + suffix, StringComparison.Ordinal)) allowed = true;
-            if (!allowed) throw new ArgumentException("Refusing preview URL from untrusted host: " + host);
+            if (!allowed) throw new ArgumentException(L.T("Dit voorbeeld komt niet van ElevenLabs: ", "This preview does not come from ElevenLabs: ") + host);
             var request = (HttpWebRequest)WebRequest.Create(uri);
             request.AllowAutoRedirect = false;
             request.Timeout = timeoutMilliseconds;
             request.ReadWriteTimeout = timeoutMilliseconds;
             using (var response = (HttpWebResponse)request.GetResponse())
             {
-                if ((int)response.StatusCode >= 300) throw new InvalidDataException("Preview fetch failed with HTTP " + (int)response.StatusCode);
+                if ((int)response.StatusCode >= 300) throw new InvalidDataException(L.T("Het voorbeeld kon niet worden opgehaald (fout ", "The preview could not be fetched (error ") + (int)response.StatusCode + ").");
                 using (var stream = response.GetResponseStream())
                 using (var memory = new MemoryStream())
                 {
@@ -517,7 +525,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
                     while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         memory.Write(buffer, 0, count);
-                        if (memory.Length > PreviewMaxBytes) throw new InvalidDataException("Preview exceeds maximum allowed size (5 MB).");
+                        if (memory.Length > PreviewMaxBytes) throw new InvalidDataException(L.T("Het voorbeeld is groter dan 5 MB.", "The preview is larger than 5 MB."));
                     }
                     return memory.ToArray();
                 }
@@ -529,8 +537,8 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         /// <summary>Start nasynchroniseren. Geeft dubbing_id en expected_duration_sec terug.</summary>
         public Dictionary<string, object> StartDubbing(DubbingRequest r, CancellationToken cancel = default(CancellationToken))
         {
-            if (r == null || string.IsNullOrWhiteSpace(r.TargetLanguage)) throw new ArgumentException("A target language is required.");
-            if (string.IsNullOrEmpty(r.FilePath) && string.IsNullOrEmpty(r.SourceUrl)) throw new ArgumentException("Choose a file or a source URL.");
+            if (r == null || string.IsNullOrWhiteSpace(r.TargetLanguage)) throw new ArgumentException(L.T("Kies eerst de doeltaal.", "Choose the target language first."));
+            if (string.IsNullOrEmpty(r.FilePath) && string.IsNullOrEmpty(r.SourceUrl)) throw new ArgumentException(L.T("Kies eerst een bestand of typ een webadres.", "Choose a file or type a web address first."));
             var form = new Dictionary<string, object> { { "target_lang", r.TargetLanguage } };
             Put(form, "source_lang", r.SourceLanguage);
             Put(form, "name", r.Name);
@@ -578,7 +586,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         public Dictionary<string, object> CreatePronunciationDictionary(string name, IList<PronunciationRule> rules, string description = null,
             CancellationToken cancel = default(CancellationToken))
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A name is required.");
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(L.T("Typ eerst een naam.", "Type a name first."));
             var list = new List<object>();
             foreach (var rule in rules) list.Add(rule.ToDictionary());
             var body = new Dictionary<string, object> { { "name", name }, { "rules", list } };
@@ -644,7 +652,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
 
         private static object[] Locators(List<DictionaryLocator> dictionaries)
         {
-            if (dictionaries.Count > 3) throw new ArgumentException("At most three pronunciation dictionaries can be used.");
+            if (dictionaries.Count > 3) throw new ArgumentException(L.T("Je kunt hooguit drie uitspraaklijsten tegelijk gebruiken.", "You can use at most three pronunciation dictionaries at once."));
             var list = new object[dictionaries.Count];
             for (var i = 0; i < list.Length; i++) list[i] = dictionaries[i].ToDictionary();
             return list;
@@ -652,8 +660,8 @@ namespace ElevenLabsMusicGenerator.MediaSuite
 
         private static void RequireFile(string path)
         {
-            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Choose a file.");
-            if (!File.Exists(path)) throw new FileNotFoundException("The file was not found.", path);
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException(L.T("Kies eerst een bestand.", "Choose a file first."));
+            if (!File.Exists(path)) throw new FileNotFoundException(L.T("Het bestand is niet gevonden.", "The file was not found."), path);
         }
 
         private static VoiceInfo ToVoice(Dictionary<string, object> item)

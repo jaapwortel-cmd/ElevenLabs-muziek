@@ -1,4 +1,4 @@
-Media Suite in C# - klaar om samen te voegen
+﻿Media Suite in C# - klaar om samen te voegen
 
 Wat is dit?
 De functies van "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
@@ -10,8 +10,7 @@ Webadressen en veldnamen gecontroleerd in het officiele Python-pakket elevenlabs
 Getest: bouwt zonder fouten of waarschuwingen samen met Andres code (net48, C# 5).
 Nog NIET getest met een echte ElevenLabs-sleutel.
 
-Deze map wordt nog NIET meegebouwd: Build.ps1 neemt alleen de .cs-bestanden direct in src.
-Bij het samenvoegen: de drie .cs-bestanden naar src verplaatsen (of Build.ps1 ook src\MediaSuite laten lezen).
+Sinds 21 november 2026 wordt deze map meegebouwd (Build.ps1 leest src met submappen). De vensters staan in src\SpraakVenster.cs.
 
 Bestanden
 - MediaSuiteClient.cs   Basis: verzoeken met JSON, multipart en query, opnieuw proberen bij 429/5xx,

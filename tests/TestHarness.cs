@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -239,6 +239,7 @@ namespace ElevenLabsMusicGenerator.Tests
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             PlaybackDependency.Initialize();
+            L.ZetVoorControle(true); // Andres proeven controleren de Engelse teksten
             int result = 1;
             using (var context = new ApplicationContext())
             {
@@ -764,7 +765,7 @@ namespace ElevenLabsMusicGenerator.Tests
             try
             {
                 File.WriteAllText(Path.Combine(backup, "Manual.html"), "original");
-                foreach (var name in new[] { "ElevenLabsMusicGenerator.exe", "Manual.html", "LICENSE.txt" }) File.WriteAllText(Path.Combine(target, name), "replacement");
+                foreach (var name in new[] { "ElevenLabsMusicGenerator.exe", "Manual.html", "Handleiding.html", "LICENSE.txt" }) File.WriteAllText(Path.Combine(target, name), "replacement");
                 typeof(ProgramUpdater).GetMethod("RestoreRollback", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).Invoke(null, new object[] { target, backup });
                 Assert(File.ReadAllText(Path.Combine(target, "Manual.html")) == "original", "Rollback did not restore the original file.");
                 Assert(Directory.GetFiles(target).Length == 1, "Rollback left files that did not exist before the update.");
@@ -779,7 +780,7 @@ namespace ElevenLabsMusicGenerator.Tests
             if (!File.Exists(package) || !Directory.Exists(portable)) throw new FileNotFoundException("Build the candidate package first.");
             var target = Path.Combine(AppPaths.AppFolder, "Updater E2E target");
             Directory.CreateDirectory(target);
-            foreach (var name in new[] { "ElevenLabsMusicGenerator.exe", "Manual.html", "LICENSE.txt" })
+            foreach (var name in new[] { "ElevenLabsMusicGenerator.exe", "Manual.html", "Handleiding.html", "LICENSE.txt" })
                 File.Copy(Path.Combine(portable, name), Path.Combine(target, name), true);
             File.WriteAllText(Path.Combine(target, "Manual.html"), "old manual sentinel");
             Directory.CreateDirectory(Path.Combine(target, "User"));
