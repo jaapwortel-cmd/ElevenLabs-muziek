@@ -1,0 +1,35 @@
+﻿Programma: ElevenLabsMusicGenerator.exe, venster "ElevenLabs Muziek, Geluidseffecten en Spraak - 0 / 4100 tekens"
+Bij de start stond een venster open: "Voorkeuren" API-sleutel: Een API-sleutel van ElevenLabs maken Status van de API-sleutel (wordt gesloten).
+
+1. Namen van de onderdelen
+Bekeken: 22 onderdelen.
+
+2. Tab-volgorde
+  Tab 1: ComboBox "Model" [id 197212] {WindowsForms10.COMBOBOX.app.0.34f5582_r6_ad1}
+  Tab 2: Edit "Lengte in seconden" [id 197148] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 3: Edit "Aantal varianten" [id 459002] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 4: CheckBox "Alleen instrumentale muziek, zonder zang" [id 720914] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 5: CheckBox "Compositieplan gebruiken" [id 197154] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 6: Button "Plan bewerken..." [id 197150] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 7: Edit "Basisbestandsnaam" [id 197172] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 8: Button "Genereren" [id 197174] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 9: List "Gemaakte geluiden" [id 197188] {WindowsForms10.LISTBOX.app.0.34f5582_r6_ad1}
+  Tab 10: Button "Afspelen" [id 197180] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 11: Button "Stoppen" [id 197186] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 12: Button "Uitvoermap openen" [id 197182] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 13: Button "Voorkeuren..." [id 328256] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 14: Button "Help" [id 197190] {WindowsForms10.BUTTON.app.0.34f5582_r6_ad1}
+  Tab 15: Edit "Tegoed" [id 197194] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 16: Edit "Statusberichten" [id 197200] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 17: Edit "Muziekbeschrijving" [id 393322] {WindowsForms10.EDIT.app.0.34f5582_r6_ad1}
+  Tab 18: ComboBox "Model" [id 197212] {WindowsForms10.COMBOBOX.app.0.34f5582_r6_ad1}
+  Na 17 onderdelen ben je weer bij het begin: goed.
+
+3. Menu's
+  Menu 1 "Bestand": 6 regels
+  Menu 2 "Genereren": 4 regels
+  Menu 3 "Spraak en stemmen": 13 regels
+  Menu 4 "Opties": 6 regels
+  Menu 5 "Help": 8 regels
+
+Toegankelijkheid: alles goed.
