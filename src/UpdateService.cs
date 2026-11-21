@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +14,7 @@ namespace ElevenLabsMusicGenerator
 {
     internal static class UpdateService
     {
-        public const string ProjectUrl = "https://github.com/OnjLouis/ElevenLabsMusicGenerator";
+        public const string ProjectUrl = "https://github.com/jaapwortel-cmd/ElevenLabs-muziek";
         private const string UserAgent = "ElevenLabs Music Generator updater";
         private const string PackageName = "ElevenLabsMusicGenerator.zip";
         private const string PublicKeyXml = "<RSAKeyValue><Modulus>qAq36snfomNcs9BJHxm5fQyD8q9NHOYlnjozQIo79eacf6zaOE5WXx8iPHPu7LbSuLLVHKWVNpLQqDSn/2SwdBVIpkTeVMmUjvCqfeICVWwuyw1R0kzLtyfrz2Z3tsTa0bXaVITgAsEF9IAbBuCz99jMuaFut4oPjLaJqlyWnmv+2iQxhzS5G6oreWyWK3SHDWhEeu+8dQmgz3cO03XcOcXnPYSbPPBf3EGg4934jNE7e+VtB9bytQn45NIhjQ1CIv2MVuWwEuXA6fxvk3x7w6CgPrsihR521MmBxXhQeoPJzTiMdFQxKKxqtNi2PHqErfpgKKk0Rmz+WeaZUOfQIoPeNiSrWxoQhxorXXEx2Rz3Czgmi/oIIk0UeO3fwD34YN5rDJ4zARTlL4y+xsjtsj8H5y6nF8ZQBZFR/s71n3FrAT/cx93bX8U+h4IEZGYyZ70RJNL3fzOAVz+C/DcanLbzz1zQsfP9eD0H0YbGfc56ib+L57Ky22ZvWJ9+wUB9</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
@@ -38,12 +38,12 @@ namespace ElevenLabsMusicGenerator
                 Version remote;
                 if (!Version.TryParse(Program.Version, out current) || release == null || !Version.TryParse(NormalizeVersion(release.TagName), out remote))
                 {
-                    if (!automatic) MessageBox.Show(owner, "No published release channel is available yet.", "Check for updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (!automatic) MessageBox.Show(owner, L.T("Er zijn nog geen updates gepubliceerd.", "No published release channel is available yet."), L.T("Zoeken naar updates", "Check for updates"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 if (remote <= current)
                 {
-                    if (!automatic) MessageBox.Show(owner, Program.AppName + " is up to date. Current version: " + Program.Version + ".", "Check for updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (!automatic) MessageBox.Show(owner, Program.AppName + L.T(" is bijgewerkt. Huidige versie: ", " is up to date. Current version: ") + Program.Version + ".", L.T("Zoeken naar updates", "Check for updates"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 var package = FindPackage(release);
@@ -57,7 +57,7 @@ namespace ElevenLabsMusicGenerator
             catch (Exception ex)
             {
                 AppLog.WriteException("Update check failed", ex);
-                if (!automatic) MessageBox.Show(owner, "Could not check for updates." + Environment.NewLine + Environment.NewLine + ex.Message, "Check for updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!automatic) MessageBox.Show(owner, L.T("Zoeken naar updates is niet gelukt.", "Could not check for updates.") + Environment.NewLine + Environment.NewLine + ex.Message, L.T("Zoeken naar updates", "Check for updates"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -104,34 +104,34 @@ namespace ElevenLabsMusicGenerator
         {
             using (var dialog = new Form())
             {
-                dialog.Text = "Update available";
+                dialog.Text = L.T("Update beschikbaar", "Update available");
                 dialog.StartPosition = FormStartPosition.CenterParent;
                 dialog.Size = new System.Drawing.Size(720, 520);
                 dialog.MinimizeBox = false;
                 dialog.MaximizeBox = false;
                 dialog.ShowIcon = false;
                 dialog.ShowInTaskbar = false;
-                dialog.AccessibleName = "Update available";
+                dialog.AccessibleName = L.T("Update beschikbaar", "Update available");
                 var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(12) };
                 layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
                 layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                layout.Controls.Add(new Label { AutoSize = true, Text = Program.AppName + " " + remote + " is available." }, 0, 0);
-                layout.Controls.Add(new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, AccessibleName = "Release notes", Text = BuildReleaseNotes(releases, current, remote) }, 0, 1);
+                layout.Controls.Add(new Label { AutoSize = true, Text = Program.AppName + " " + remote + L.T(" is beschikbaar.", " is available.") }, 0, 0);
+                layout.Controls.Add(new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, AccessibleName = L.T("Wat is er nieuw", "Release notes"), Text = BuildReleaseNotes(releases, current, remote) }, 0, 1);
                 var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
                 if (package != null && package.Signature != null)
                 {
-                    var install = new Button { Text = "&Download and install", AutoSize = true, AccessibleName = "Download and install verified update" };
+                    var install = new Button { Text = L.T("&Downloaden en installeren", "&Download and install"), AutoSize = true, AccessibleName = L.T("Gecontroleerde update downloaden en installeren", "Download and install verified update") };
                     install.Click += delegate { dialog.DialogResult = DialogResult.OK; dialog.Close(); StartSelfUpdate(owner, package, remote.ToString(), false); };
                     buttons.Controls.Add(install);
                     dialog.AcceptButton = install;
                 }
-                var releasePage = new Button { Text = "Open &release page", AutoSize = true };
+                var releasePage = new Button { Text = L.T("&Pagina van de update openen", "Open &release page"), AutoSize = true };
                 releasePage.Click += delegate { OpenUrl(string.IsNullOrWhiteSpace(release.HtmlUrl) ? ProjectUrl + "/releases" : release.HtmlUrl); };
                 var later = new Button { Text = "&Later", AutoSize = true, DialogResult = DialogResult.Cancel };
                 buttons.Controls.Add(releasePage);
                 buttons.Controls.Add(later);
-                if (package == null || package.Signature == null) buttons.Controls.Add(new Label { AutoSize = true, Text = "Automatic installation is unavailable because the ZIP or signature is missing." });
+                if (package == null || package.Signature == null) buttons.Controls.Add(new Label { AutoSize = true, Text = L.T("Vanzelf installeren kan niet, want de zip of de handtekening ontbreekt.", "Automatic installation is unavailable because the ZIP or signature is missing.") });
                 dialog.CancelButton = later;
                 layout.Controls.Add(buttons, 0, 2);
                 dialog.Controls.Add(layout);
@@ -142,8 +142,8 @@ namespace ElevenLabsMusicGenerator
         private static void StartSelfUpdate(IWin32Window owner, SignedPackage package, string expectedVersion, bool silent)
         {
             if (!silent && MessageBox.Show(owner,
-                Program.AppName + " will close, verify the signed update, back up and replace only its program files, then restart. Portable settings and the complete User folder will be preserved." + Environment.NewLine + Environment.NewLine + "Continue?",
-                "Download and install", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+                Program.AppName + L.T(" sluit nu, controleert de update, maakt een reservekopie, vervangt alleen de programmabestanden en start opnieuw. Je instellingen en de hele map User blijven bewaard.", " will close, verify the signed update, back up and replace only its program files, then restart. Portable settings and the complete User folder will be preserved.") + Environment.NewLine + Environment.NewLine + L.T("Doorgaan?", "Continue?"),
+                L.T("Downloaden en installeren", "Download and install"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
             try
             {
                 var updaterRoot = Path.Combine(AppPaths.UserFolder, Path.Combine("Update Temp", Guid.NewGuid().ToString("N")));
@@ -160,8 +160,8 @@ namespace ElevenLabsMusicGenerator
             }
             catch (Exception ex)
             {
-                AppLog.WriteException("Could not start updater", ex);
-                if (!silent) MessageBox.Show(owner, ex.Message, "Could not start updater", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppLog.WriteException(L.T("Update kon niet starten", "Could not start updater"), ex);
+                if (!silent) MessageBox.Show(owner, ex.Message, L.T("Update kon niet starten", "Could not start updater"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -220,8 +220,8 @@ namespace ElevenLabsMusicGenerator
                 .Where(item => item.Version != null && item.Version > current && item.Version <= latest && !item.Release.Draft && !item.Release.Prerelease)
                 .OrderBy(item => item.Version).ToList();
             var builder = new StringBuilder();
-            builder.AppendLine("Your version: " + current);
-            builder.AppendLine("New version: " + latest);
+            builder.AppendLine(L.T("Jouw versie: ", "Your version: ") + current);
+            builder.AppendLine(L.T("Nieuwe versie: ", "New version: ") + latest);
             foreach (var item in selected)
             {
                 builder.AppendLine();
@@ -249,7 +249,7 @@ namespace ElevenLabsMusicGenerator
 
         private static string PlainReleaseNotes(string markdown)
         {
-            if (string.IsNullOrWhiteSpace(markdown)) return "No release notes were provided.";
+            if (string.IsNullOrWhiteSpace(markdown)) return L.T("Er staat geen uitleg bij deze update.", "No release notes were provided.");
             return string.Join(Environment.NewLine, markdown.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n')
                 .Select(line => line.TrimEnd()).Select(line => line.StartsWith("#", StringComparison.Ordinal) ? line.TrimStart('#').Trim() : line)
                 .Select(line => line.StartsWith("- ", StringComparison.Ordinal) ? "  " + line.Substring(2) : line));

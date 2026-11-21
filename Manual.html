@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ElevenLabs Music and Sound FX Generator for Windows - Help</title>
+<title>ElevenLabs Music and Speech - Help</title>
 <style>
 body { font-family: Segoe UI, sans-serif; line-height: 1.55; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; color: #171717; background: #fff; }
 h1, h2 { line-height: 1.2; }
@@ -14,8 +14,8 @@ code { font-family: Consolas, monospace; }
 </head>
 <body>
 <main>
-<h1>ElevenLabs Music and Sound FX Generator for Windows</h1>
-<p>ElevenLabs Music Generator is a portable Windows application for creating music and sound effects from written prompts through ElevenLabs.</p>
+<h1>ElevenLabs Music and Speech</h1>
+<p>ElevenLabs Music and Speech is a portable Windows application for creating music, sound effects and speech from written prompts through ElevenLabs. It is the Dutch edition by Jaap Wortel of Andre Louis's ElevenLabs Music and Sound FX Generator, with an added Speech and voices window. Dutch is the default language; choose <strong>Options, Language (Taal), English</strong> to use English. The Dutch manual is <code>Handleiding.html</code>.</p>
 
 <h2 id="contents">Contents</h2>
 <ul>
@@ -29,6 +29,8 @@ code { font-family: Consolas, monospace; }
 <li><a href="#results-and-credits">Results And Credit Usage</a></li>
 <li><a href="#prompt-drafts">Prompt Drafts</a></li>
 <li><a href="#cancellation-and-failure">Cancellation And Failure</a></li>
+<li><a href="#speech-and-voices">Speech And Voices</a></li>
+<li><a href="#language">Language</a></li>
 <li><a href="#keyboard-commands">Keyboard Commands</a></li>
 <li><a href="#updates">Updates</a></li>
 <li><a href="#files-and-storage">Files and Storage</a></li>
@@ -136,6 +138,13 @@ code { font-family: Consolas, monospace; }
 
 <p>On the <strong>Audio</strong> tab of Preferences, choose the playback device and default output format, and optionally enable <strong>Play new generations automatically in sequence</strong>. This is off by default. Only new audio from a successfully completed batch plays, one file at a time; existing tracks kept during resumption are not replayed. Cancelled or failed batches do not start playback automatically. Stop ends the current audio and the whole queue. Manually playing a result replaces the queue; changing the device stops it. Options, Audio Settings opens this same Audio tab.</p>
 <p>Completed results also appear in the <strong>Generated audio</strong> list for manual playback. Press <strong>F1</strong> for brief help about the focused control, including controls in Preferences and the plan editor. Read the explanation a line at a time; Close or Escape returns to the previous control. Open Manual opens the full guide.</p>
+<h2 id="speech-and-voices">Speech And Voices</h2>
+<p>Choose the <strong>Speech and voices</strong> menu or press <kbd>Ctrl</kbd>+<kbd>T</kbd> to open a separate window. The <strong>Function</strong> list (Alt+F) chooses what you want to do; the part below changes to match and focus never moves on its own. Ctrl+PageDown and Ctrl+PageUp switch functions. Ctrl+Enter runs the main action, Alt+P plays the last result, Alt+A saves a copy, Escape stops playback or running work (or closes the window when nothing is running), and F1 explains the focused control. The <strong>Message log</strong> (Alt+L) shows progress; screen readers announce new messages automatically. Long work runs in the background.</p>
+<p>Functions: Text to speech, Dialogue with multiple voices, Voice search (your voices or the ElevenLabs library, with previews and Add to my voices), Voice design, Voice cloning (only with the speaker's permission), Voice changer, Remove background noise, Speech to text (with speaker labels, text, SRT and JSON export), Dubbing (checked every 20 seconds until ready), Align text to a recording (SRT), Pronunciation dictionaries and History. Results are saved automatically in subfolders of the output folder (such as <code>Spraak</code>, <code>Gesprekken</code> and <code>Teksten</code>) with a <code>.json</code> description beside each file. Your API key needs access to each ElevenLabs feature you use. These features are based on ElevenLabs Media Suite (MIT License).</p>
+
+<h2 id="language">Language</h2>
+<p>Choose <strong>Options, Language (Taal)</strong> and then <strong>Nederlands</strong> or <strong>English</strong>. The app asks to restart; your prompt draft is kept. The choice is stored in <code>User\Taal.txt</code>.</p>
+
 <h2 id="keyboard-commands">Keyboard Commands</h2>
 <p>In dropdowns, type several letters to find a matching name, including spaces and digits. A pause starts a new search; repeating a single letter cycles through matches. Backspace corrects the typed prefix, and arrow-key navigation clears it.</p>
 <table>
@@ -162,20 +171,22 @@ code { font-family: Consolas, monospace; }
 <tr><td>Check for updates</td><td>Shift+F1</td></tr>
 <tr><td>Help for focused control</td><td>F1</td></tr><tr><td>Full manual</td><td>Help menu or Help button</td></tr><tr><td>Usage analytics</td><td>Alt+F1</td></tr><tr><td>Audio settings</td><td>Ctrl+Shift+U</td></tr><tr><td>Play selected result</td><td>Alt+Y, or Enter in the generated-audio list</td></tr><tr><td>Stop playback</td><td>Esc</td></tr>
 <tr><td>Open project page</td><td>Ctrl+F1</td></tr>
+<tr><td>Video soundtrack</td><td>Ctrl+Shift+V</td></tr>
+<tr><td>Speech and voices window</td><td>Ctrl+T</td></tr>
 </tbody>
 </table>
 
 <h2 id="updates">Updates</h2>
 <p>Choose <strong>Help, Version History</strong> to read the changes included in this version without an internet connection. Close the window or press Escape to return to the app.</p>
 <p>Update checks are available from Help and can be scheduled in Preferences. New installations check when the app starts; existing update preferences are kept. You can change the schedule or turn checks off. An install requires a ZIP and a valid matching signature; unsigned or invalid packages are not installed. Update checks require an internet connection and may report that no release is available.</p>
-<p>Use <strong>Project Page</strong> to open the <a href="https://github.com/OnjLouis/ElevenLabsMusicGenerator">GitHub project page</a> in your browser. More of Andre Louis's applications are listed on the <a href="https://onj.me/software">Software page</a>.</p>
+<p>Use <strong>Project Page</strong> to open the <a href="https://github.com/jaapwortel-cmd/ElevenLabs-muziek">GitHub page of this Dutch edition</a> in your browser. The original English application is at <a href="https://github.com/OnjLouis/ElevenLabsMusicGenerator">Andre Louis's project page</a>. More of Andre Louis's applications are listed on the <a href="https://onj.me/software">Software page</a>.</p>
 
 <h2 id="files-and-storage">Files and Storage</h2>
 <p><code>ElevenLabsMusicGenerator.ini</code> contains preferences. The <code>Music</code> folder is the default output. Generated audio and shared prompts use the chosen output folder; returned details, lyrics, and title-naming batch records use its <code>Lyrics</code> subfolder. The <code>User</code> folder contains the protected API key, prompt and plan drafts, and logs. Keep your music and <code>User</code> folder private when sharing the application.</p>
 
 <h2 id="credits">Credits</h2>
 <p>ElevenLabs Music Generator was developed with Codex under Andre Louis's direction and testing. Music generation is provided by the ElevenLabs Music API and uses the account and credits of the person running the app. The application is free software under the MIT License. Windows playback uses NAudio by Mark Heath and contributors under the Microsoft Public License; both notices are included in <code>LICENSE.txt</code>.</p>
-<p>For speech, dialogue, transcription and voice conversion, see the <a href="https://github.com/OnjLouis/ElevenLabsSpeechGenerator">companion ElevenLabs Speech Generator</a>.</p>
+<p>The Speech and voices window is based on the features of ElevenLabs Media Suite (MIT License, ElevenLabs Media Suite contributors), rebuilt in C#. The Dutch edition is by Jaap Wortel. Andre Louis also makes the <a href="https://github.com/OnjLouis/ElevenLabsSpeechGenerator">ElevenLabs Speech Generator</a>.</p>
 <p>For questions or feedback, visit <a href="https://onj.me/contact">Andre Louis's contact page</a>. To support his work, choose <strong>Help, Donate</strong> or visit <a href="https://onj.me/donate">the donation page</a>.</p>
 </main>
 </body>

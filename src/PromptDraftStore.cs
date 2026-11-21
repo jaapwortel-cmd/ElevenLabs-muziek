@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -52,7 +52,7 @@ namespace ElevenLabsMusicGenerator
                 else File.Move(temporary, path);
                 var verified = Read(path);
                 if (verified.Music != (drafts.Music ?? string.Empty) || verified.SoundEffects != (drafts.SoundEffects ?? string.Empty))
-                    throw new InvalidDataException("The saved prompt drafts did not match the edited text.");
+                    throw new InvalidDataException(L.T("De bewaarde ontwerp-prompts klopten niet met de tekst.", "The saved prompt drafts did not match the edited text."));
                 foreach (var old in new[] { "Prompt draft.txt", "Music prompt draft.txt", "Sound effects prompt draft.txt" })
                 {
                     var oldPath = Path.Combine(folder, old);
@@ -68,7 +68,7 @@ namespace ElevenLabsMusicGenerator
             if (values == null || !values.ContainsKey("version") || Convert.ToInt32(values["version"]) != FormatVersion ||
                 !values.ContainsKey("music") || !(values["music"] is string) ||
                 !values.ContainsKey("soundEffects") || !(values["soundEffects"] is string))
-                throw new InvalidDataException("The prompt drafts file has an unsupported or invalid format.");
+                throw new InvalidDataException(L.T("Het bestand met ontwerp-prompts heeft een onbekende vorm.", "The prompt drafts file has an unsupported or invalid format."));
             return new PromptDrafts { Music = (string)values["music"], SoundEffects = (string)values["soundEffects"] };
         }
     }

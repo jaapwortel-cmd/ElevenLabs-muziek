@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -97,17 +97,17 @@ namespace ElevenLabsMusicGenerator
         public static string ResolveOutputFolder(string value, bool requireAbsolute)
         {
             var folder = NormalizeFolderInput(value);
-            if (string.IsNullOrWhiteSpace(folder)) throw new InvalidDataException("Choose a default output folder.");
+            if (string.IsNullOrWhiteSpace(folder)) throw new InvalidDataException(L.T("Kies een standaard uitvoermap.", "Choose a default output folder."));
             try
             {
                 var root = Path.GetPathRoot(folder);
                 if (requireAbsolute && (!Path.IsPathRooted(folder) || root == @"\" || root.EndsWith(":", StringComparison.Ordinal)))
-                    throw new InvalidDataException("Choose an absolute default output folder, such as C:\\Audio.");
+                    throw new InvalidDataException(L.T("Kies een volledige map als uitvoermap, zoals C:\\Audio.", "Choose an absolute default output folder, such as C:\\Audio."));
                 return Path.GetFullPath(requireAbsolute ? folder : Path.Combine(AppPaths.AppFolder, folder));
             }
-            catch (ArgumentException ex) { throw new InvalidDataException("The default output folder contains invalid path characters.", ex); }
-            catch (NotSupportedException ex) { throw new InvalidDataException("The default output folder is not a supported folder path.", ex); }
-            catch (PathTooLongException ex) { throw new InvalidDataException("The default output folder path is too long.", ex); }
+            catch (ArgumentException ex) { throw new InvalidDataException(L.T("De uitvoermap heeft tekens die niet in een mapnaam mogen.", "The default output folder contains invalid path characters."), ex); }
+            catch (NotSupportedException ex) { throw new InvalidDataException(L.T("Deze uitvoermap kan niet worden gebruikt.", "The default output folder is not a supported folder path."), ex); }
+            catch (PathTooLongException ex) { throw new InvalidDataException(L.T("Het pad van de uitvoermap is te lang.", "The default output folder path is too long."), ex); }
         }
 
         public void Save()

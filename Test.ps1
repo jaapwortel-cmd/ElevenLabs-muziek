@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
     [string]$WorkRoot
@@ -21,7 +21,7 @@ if (-not (Test-Path -LiteralPath $compiler)) {
 New-Item -ItemType Directory -Path $WorkRoot | Out-Null
 $testExe = Join-Path $WorkRoot 'ElevenLabsMusicGenerator.Tests.exe'
 $sources = @()
-$sources += Get-ChildItem -LiteralPath (Join-Path $root 'src') -Filter '*.cs' | Sort-Object Name | ForEach-Object FullName
+$sources += Get-ChildItem -LiteralPath (Join-Path $root 'src') -Filter '*.cs' -Recurse | Sort-Object FullName | ForEach-Object FullName
 $sources += Join-Path $root 'tests\TestHarness.cs'
 & $compiler /nologo /target:exe /optimize+ /define:PRIVATE_TEST /main:ElevenLabsMusicGenerator.Tests.TestHarness "/out:$testExe" "/reference:$root\Dependencies\NAudio.dll" "/resource:$root\Dependencies\NAudio.dll,ElevenLabsMusicGenerator.NAudio.dll" /reference:System.dll /reference:System.Core.dll /reference:System.Security.dll /reference:System.Runtime.Serialization.dll /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.dll /reference:System.Web.Extensions.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll $sources
 if ($LASTEXITCODE -ne 0) {
@@ -29,6 +29,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Copy-Item -LiteralPath (Join-Path $root 'Manual.html') -Destination $WorkRoot
+Copy-Item -LiteralPath (Join-Path $root 'Handleiding.html') -Destination $WorkRoot
 & $testExe
 if ($LASTEXITCODE -ne 0) {
     throw 'One or more tests failed.'

@@ -42,3 +42,30 @@ commit fab10f3). Zie LEES-MIJ.txt voor het plan.
   met Andres code (net48, C# 5); niet getest met een echte sleutel. Wordt nog niet meegebouwd (Build.ps1 leest alleen src\*.cs).
   Volgende stap: de vensters in WinForms. Lokaal bouwen: dotnet-sdk-8.0 + NuGet Microsoft.NETFramework.ReferenceAssemblies.net48
   1.0.3, GenerateAssemblyInfo=false, alle src/*.cs + NAudio.dll + System.Web.Extensions e.d. (zie Build.ps1).
+
+## Samengevoegd en twee talen (21 nov 2026, versie 1.5.1.1, PROEF 1)
+
+- Jaap: "voeg de twee programma's samen en maak het volledig Nederlands", daarna: "de Engelse versie moet blijven, Nederlands
+  is de eerste taal", en "met toegankelijkheid en schermlezers".
+- Talen: `src/Taal.cs` (klasse `L`): elke tekst staat als paar in de code, `L.T("Nederlands", "English")`. Geen tekstbestand:
+  zo kan een vertaling niet vergeten worden. Keuze in `User\Taal.txt` (nl/en, standaard nl), menu Opties, Taal (Language);
+  het programma start opnieuw (`--herstart` wacht op de mutex). Nieuwe teksten ALTIJD als L.T-paar.
+  Let op: L.T mag niet in const, standaardwaarde van een parameter, case of attribuut.
+- Keuzes die bewaard worden (update-frequentie, aansluiting high/medium/low) gaan op volgorde, niet op de tekst.
+- Mapnamen voor spraak blijven Nederlands in beide talen (Spraak, Gesprekken, Stem omzetten, Schoon geluid,
+  Stemvoorbeelden, Nagesynchroniseerd, Geschiedenis, Teksten; `AssetNaming.Categories`).
+- Sneltoetsen hoofdvenster: Nederlands Alt+T tegoed, Alt+C statusberichten, Alt+S menu Spraak en stemmen;
+  Engels houdt Andres Alt+B en Alt+S, menu "Spee&ch and voices".
+- `src/SpraakVenster.cs`: venster Spraak en stemmen (Ctrl+T, menu Spraak en stemmen) met de 12 functies van de Media Suite,
+  keuzelijst Functie (Alt+F), Meldingen (Alt+L) met UIA-melding (RaiseAutomationNotification), klussen via `JobQueue`.
+  `MediaSuiteClient.AddSharedVoice` (POST v1/voices/add/{public_owner_id}/{voice_id}) is erbij gekomen.
+- `src/Controle.cs`: `--controle <rapport>` bouwt alle vensters in nl en en en meldt onderdelen zonder naam en dubbele
+  Alt-letters (ook in menu's). Draait in de bouwronde en lokaal met Mono + Xvfb (Voorkeuren alleen op Windows, winmm).
+- Handleidingen: `Handleiding.html` (nl, F1 in het Nederlands) en `Manual.html` (en). Beide in de zip en in ProgramFiles.
+- `tests/TestHarness.cs` (Andre) draait in het Engels (`L.ZetVoorControle(true)`); in de bouwronde ter informatie.
+- Bouwronde `.github/workflows/build.yml` (Windows): Build.ps1, controle, Andres proeven, proefstart,
+  tools/Toegankelijkheid.ps1, zip naar `exe-builds` ("ElevenLabs Muziek en Spraak <versie> PROEF n.zip").
+- Lokaal bouwen: dotnet build van een eigen csproj in de scratchpad (net48, LangVersion 5, src/**/*.cs, NAudio als resource).
+- Updates: `UpdateService.ProjectUrl` wijst naar deze repo; er zijn nog geen releases met handtekening, dus "geen updates".
+  Updates via Dropbox komen later.
+- Mutex nu "JaapWortel.ElevenLabsMuziekEnSpraak" (mag naast Andres Engelse programma draaien).

@@ -1,4 +1,4 @@
-// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
+﻿// Omgezet naar C# uit "ElevenLabs Media Suite" (https://github.com/audioses/elevenlabs-media-suite,
 // MIT-licentie, Copyright (c) 2026 ElevenLabs Media Suite contributors), src/api/client.py en sdk_client.py.
 // De Python-versie gebruikte het ElevenLabs-pakket; hier praten we rechtstreeks met de REST-API,
 // net als ElevenLabsMusicClient van Andre Louis. Webadressen en veldnamen gecontroleerd in het
@@ -62,7 +62,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
         {
             this.apiKey = (apiKey ?? string.Empty).Trim();
             this.apiRoot = (apiRoot ?? DefaultApiRoot).TrimEnd('/');
-            if (this.apiKey.Length == 0) throw new ArgumentException("An ElevenLabs API key is required.", "apiKey");
+            if (this.apiKey.Length == 0) throw new ArgumentException(L.T("Er is nog geen API-sleutel van ElevenLabs. Zet hem in Opties, Voorkeuren.", "There is no ElevenLabs API key yet. Enter it in Options, Preferences."), "apiKey");
         }
 
         // ------------------------------------------------------------------ JSON
@@ -222,7 +222,7 @@ namespace ElevenLabsMusicGenerator.MediaSuite
             string type, id;
             var bytes = Send(method, path, query, json, form, files, cancel, out type, out id);
             if (type.IndexOf("json", StringComparison.OrdinalIgnoreCase) >= 0)
-                throw new InvalidDataException("ElevenLabs returned text instead of audio: " + Encoding.UTF8.GetString(bytes));
+                throw new InvalidDataException(L.T("ElevenLabs stuurde tekst in plaats van geluid: ", "ElevenLabs returned text instead of audio: ") + Encoding.UTF8.GetString(bytes));
             return new AudioResult { Audio = bytes, ContentType = type, RequestId = id };
         }
 
@@ -330,7 +330,12 @@ namespace ElevenLabsMusicGenerator.MediaSuite
             }
             catch { message = body; }
             if (string.IsNullOrWhiteSpace(message)) message = string.IsNullOrWhiteSpace(body) ? fallback : body;
-            return code > 0 ? "ElevenLabs returned HTTP " + code + ": " + message : message;
+            var hint = string.Empty;
+            if (code == 401) hint = L.T("De API-sleutel klopt niet, of hij mag dit onderdeel niet gebruiken. Kijk bij ElevenLabs welke toegang de sleutel heeft. ", "The API key is wrong, or it is not allowed to use this feature. Check the key's permissions at ElevenLabs. ");
+            else if (code == 402 || (message ?? string.Empty).IndexOf("quota", StringComparison.OrdinalIgnoreCase) >= 0) hint = L.T("Je tegoed bij ElevenLabs is op, of dit kan niet met jouw abonnement. ", "Your ElevenLabs credits have run out, or your plan does not include this. ");
+            else if (code == 429) hint = L.T("ElevenLabs is even te druk, of je doet te veel tegelijk. Probeer het zo nog eens. ", "ElevenLabs is busy, or too many requests were made at once. Try again shortly. ");
+            else if (code >= 500) hint = L.T("Er is een storing bij ElevenLabs. Probeer het later nog eens. ", "ElevenLabs has a problem. Try again later. ");
+            return code > 0 ? hint + L.T("ElevenLabs gaf fout ", "ElevenLabs returned error ") + code + ": " + message : message;
         }
     }
 }

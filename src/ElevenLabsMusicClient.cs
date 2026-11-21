@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -39,7 +39,7 @@ namespace ElevenLabsMusicGenerator
         {
             this.apiKey = (apiKey ?? string.Empty).Trim();
             this.apiRoot = (apiRoot ?? DefaultApiRoot).TrimEnd('/');
-            if (this.apiKey.Length == 0) throw new ArgumentException("An ElevenLabs API key is required.", "apiKey");
+            if (this.apiKey.Length == 0) throw new ArgumentException(L.T("Er is nog geen API-sleutel van ElevenLabs. Zet hem in Voorkeuren.", "An ElevenLabs API key is required."), "apiKey");
         }
 
         public string TestApiKey(string modelId = "music_v2_5")
@@ -48,8 +48,8 @@ namespace ElevenLabsMusicGenerator
             var planModel = modelId == "music_v2" ? modelId : "music_v2_5";
             CreateCompositionPlan("A short instrumental piano phrase", 3, planModel, CancellationToken.None);
             return modelId == "music_v1"
-                ? "Music API key accepted through a v2.5 plan request. Music v1 was not tested directly; no music was generated."
-                : "Music API key accepted. No music was generated.";
+                ? L.T("De sleutel werkt voor muziek (getest met een planverzoek voor v2.5). Muziek v1 is niet apart getest. Er is geen muziek gemaakt.", "Music API key accepted through a v2.5 plan request. Music v1 was not tested directly; no music was generated.")
+                : L.T("De sleutel werkt voor muziek. Er is geen muziek gemaakt.", "Music API key accepted. No music was generated.");
         }
 
         private string TestSoundEffectsKey()
@@ -72,7 +72,7 @@ namespace ElevenLabsMusicGenerator
                 using (var audio = response.GetResponseStream())
                 {
                     if (!response.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidDataException("ElevenLabs did not return audio for the Sound Effects key test.");
+                        throw new InvalidDataException(L.T("ElevenLabs stuurde geen geluid terug bij de test voor geluidseffecten.", "ElevenLabs did not return audio for the Sound Effects key test."));
                     var buffer = new byte[8192];
                     var received = 0;
                     int count;
@@ -80,13 +80,13 @@ namespace ElevenLabsMusicGenerator
                     {
                         received += count;
                         if (received > MaxKeyTestAudioBytes)
-                            throw new InvalidDataException("The Sound Effects key test returned more audio than expected.");
+                            throw new InvalidDataException(L.T("De test voor geluidseffecten gaf meer geluid terug dan verwacht.", "The Sound Effects key test returned more audio than expected."));
                     }
-                    if (received == 0) throw new InvalidDataException("ElevenLabs returned an empty Sound Effects key test response.");
+                    if (received == 0) throw new InvalidDataException(L.T("ElevenLabs gaf een leeg antwoord bij de test voor geluidseffecten.", "ElevenLabs returned an empty Sound Effects key test response."));
                 }
             }
             catch (WebException ex) { throw CreateApiException(ex); }
-            return "Sound Effects API key accepted. A 0.5-second test effect was generated and discarded; this request may have used credits.";
+            return L.T("De sleutel werkt voor geluidseffecten. Er is een testgeluidje van een halve seconde gemaakt en weggegooid; dat kan tegoed hebben gekost.", "Sound Effects API key accepted. A 0.5-second test effect was generated and discarded; this request may have used credits.");
         }
 
         public SubscriptionBalance GetSubscriptionBalance()
@@ -108,25 +108,25 @@ namespace ElevenLabsMusicGenerator
             try
             {
                 GetSubscriptionBalance();
-                return "Credit balance access available.";
+                return L.T("Het tegoed kan worden gelezen.", "Credit balance access available.");
             }
             catch (ElevenLabsApiException ex)
             {
                 if (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.Forbidden)
-                    return "Credit balance unavailable. Enable the API key's user_read permission to show the balance.";
-                return "Credit balance access could not be verified (HTTP " + (int?)ex.StatusCode + "). Music and Sound Effects access are separate.";
+                    return L.T("Het tegoed kan niet worden gelezen. Zet bij de API-sleutel de toegang user_read aan.", "Credit balance unavailable. Enable the API key's user_read permission to show the balance.");
+                return L.T("Kon niet controleren of het tegoed gelezen mag worden (fout ", "Credit balance access could not be verified (HTTP ") + (int?)ex.StatusCode + L.T("). Toegang tot muziek en geluidseffecten staat daar los van.", "). Music and Sound Effects access are separate.");
             }
             catch (Exception ex)
             {
                 AppLog.WriteException("Could not test balance access", ex);
-                return "Credit balance access could not be verified. Music and Sound Effects access are separate.";
+                return L.T("Kon niet controleren of het tegoed gelezen mag worden. Toegang tot muziek en geluidseffecten staat daar los van.", "Credit balance access could not be verified. Music and Sound Effects access are separate.");
             }
         }
 
         public MusicCompositionPlan CreateCompositionPlan(string prompt, int lengthSeconds, string modelId, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(prompt) || prompt.Length > 4100) throw new ArgumentException("Enter a prompt of no more than 4,100 characters.", "prompt");
-            if (modelId != "music_v2" && modelId != "music_v2_5") throw new ArgumentException("Composition plans require Music v2 or v2.5.", "modelId");
+            if (string.IsNullOrWhiteSpace(prompt) || prompt.Length > 4100) throw new ArgumentException(L.T("Typ een prompt van hooguit 4100 tekens.", "Enter a prompt of no more than 4,100 characters."), "prompt");
+            if (modelId != "music_v2" && modelId != "music_v2_5") throw new ArgumentException(L.T("Een compositieplan werkt alleen met Muziek v2 of v2.5.", "Composition plans require Music v2 or v2.5."), "modelId");
             var webRequest = CreateRequest(apiRoot + "/v1/music/plan", "POST");
             var body = new JavaScriptSerializer().Serialize(new Dictionary<string, object>
             {
@@ -156,11 +156,11 @@ namespace ElevenLabsMusicGenerator
         public GenerationResult GenerateOne(MusicGenerationRequest requestData, string outputPath, int variationIndex, CancellationToken cancellationToken, Action<GenerationProgress> progress)
         {
             if (requestData == null) throw new ArgumentNullException("requestData");
-            if (string.IsNullOrWhiteSpace(outputPath)) throw new ArgumentException("An output path is required.", "outputPath");
-            if (File.Exists(outputPath)) throw new InvalidOperationException("The existing track will not be overwritten: " + Path.GetFileName(outputPath));
+            if (string.IsNullOrWhiteSpace(outputPath)) throw new ArgumentException(L.T("Er is geen bestand om in op te slaan.", "An output path is required."), "outputPath");
+            if (File.Exists(outputPath)) throw new InvalidOperationException(L.T("Een bestaand nummer wordt niet overschreven: ", "The existing track will not be overwritten: ") + Path.GetFileName(outputPath));
 
             var outputFolder = Path.GetDirectoryName(outputPath);
-            if (string.IsNullOrWhiteSpace(outputFolder)) throw new InvalidOperationException("The output folder could not be determined.");
+            if (string.IsNullOrWhiteSpace(outputFolder)) throw new InvalidOperationException(L.T("De uitvoermap is onbekend.", "The output folder could not be determined."));
             Directory.CreateDirectory(outputFolder);
 
             var audioPartPath = outputPath + ".part";
@@ -188,7 +188,7 @@ namespace ElevenLabsMusicGenerator
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Report(progress, requestData, variationIndex, outputPath, 0, requestData.IsSoundEffect ? "Requesting a sound effect from ElevenLabs." : "Requesting music from ElevenLabs.");
+                Report(progress, requestData, variationIndex, outputPath, 0, requestData.IsSoundEffect ? L.T("Geluidseffect opvragen bij ElevenLabs.", "Requesting a sound effect from ElevenLabs.") : L.T("Muziek opvragen bij ElevenLabs.", "Requesting music from ElevenLabs."));
                 var includeDetails = (requestData.IncludeDetails || requestData.UseGeneratedTitle) && !requestData.IsSoundEffect;
                 var url = apiRoot + (requestData.IsSoundEffect ? "/v1/sound-generation" : includeDetails ? "/v1/music/detailed" : "/v1/music") + "?output_format=" + HttpUtility.UrlEncode(requestData.OutputFormat);
                 var webRequest = CreateRequest(url, "POST");
@@ -216,11 +216,11 @@ namespace ElevenLabsMusicGenerator
                                 if (count <= 0) break;
                                 output.Write(buffer, 0, count);
                                 received += count;
-                                Report(progress, requestData, variationIndex, outputPath, received, "Receiving generated audio.");
+                                Report(progress, requestData, variationIndex, outputPath, received, L.T("Geluid ontvangen.", "Receiving generated audio."));
                             }
                         }
 
-                        if (received == 0) throw new InvalidDataException("ElevenLabs returned an empty audio file.");
+                        if (received == 0) throw new InvalidDataException(L.T("ElevenLabs stuurde een leeg geluidsbestand.", "ElevenLabs returned an empty audio file."));
                         MultipartMusicResponse details = null;
                         if (includeDetails)
                         {
@@ -228,12 +228,12 @@ namespace ElevenLabsMusicGenerator
                             catch (Exception ex)
                             {
                                 keepRawResponse = true;
-                                throw new InvalidDataException("Could not decode the detailed response. The complete response was retained at " + multipartPartPath + ".", ex);
+                                throw new InvalidDataException(L.T("Het uitgebreide antwoord kon niet worden gelezen. Het hele antwoord staat in ", "Could not decode the detailed response. The complete response was retained at ") + multipartPartPath + ".", ex);
                             }
                             if (details.MetadataJson == null)
                             {
                                 keepRawResponse = true;
-                                throw new InvalidDataException("ElevenLabs returned audio without detailed metadata. The response was retained at " + multipartPartPath + ".");
+                                throw new InvalidDataException(L.T("ElevenLabs stuurde geluid zonder details. Het antwoord staat in ", "ElevenLabs returned audio without detailed metadata. The response was retained at ") + multipartPartPath + ".");
                             }
                         }
                         if (requestData.OutputFormat.StartsWith("pcm_", StringComparison.OrdinalIgnoreCase))
@@ -284,7 +284,7 @@ namespace ElevenLabsMusicGenerator
                         var songId = response.Headers["song-id"] ?? string.Empty;
                         stopwatch.Stop();
                         AppLog.Write("Generated " + Path.GetFileName(outputPath) + "; variation=" + variationIndex + "; bytes=" + received + "; format=" + requestData.OutputFormat + "; model=" + requestData.ModelId + "; elapsed=" + stopwatch.Elapsed.TotalSeconds.ToString("0.0") + "s.");
-                        Report(progress, requestData, variationIndex, outputPath, received, variationIndex == 1 ? "Saved generated audio and shared prompt." : "Saved generated audio.");
+                        Report(progress, requestData, variationIndex, outputPath, received, variationIndex == 1 ? L.T("Geluid en prompt bewaard.", "Saved generated audio and shared prompt.") : L.T("Geluid bewaard.", "Saved generated audio."));
                         return new GenerationResult { OutputPath = outputPath, PromptPath = promptPath, AudioBytes = received, SongId = songId,
                             DetailsPath = details == null || !requestData.IncludeDetails ? null : detailsPath, LyricsPath = hasLyrics ? lyricsPath : null, Elapsed = stopwatch.Elapsed };
                     }
@@ -324,9 +324,9 @@ namespace ElevenLabsMusicGenerator
             var values = new Dictionary<string, object>();
             if (requestData.IsSoundEffect)
             {
-                if (string.IsNullOrWhiteSpace(requestData.Prompt) || requestData.Prompt.Length > MusicGenerationRequest.SoundEffectsPromptLimit) throw new ArgumentException("Enter a sound effects prompt of no more than 450 characters.");
-                if (!requestData.AutomaticDuration && (requestData.SoundEffectSeconds < 0.5m || requestData.SoundEffectSeconds > 30m)) throw new ArgumentException("Sound effects must last from 0.5 to 30 seconds.");
-                if (requestData.PromptInfluence < 0 || requestData.PromptInfluence > 1) throw new ArgumentException("Prompt influence must be between 0 and 1.");
+                if (string.IsNullOrWhiteSpace(requestData.Prompt) || requestData.Prompt.Length > MusicGenerationRequest.SoundEffectsPromptLimit) throw new ArgumentException(L.T("Typ een prompt voor het geluidseffect van hooguit 450 tekens.", "Enter a sound effects prompt of no more than 450 characters."));
+                if (!requestData.AutomaticDuration && (requestData.SoundEffectSeconds < 0.5m || requestData.SoundEffectSeconds > 30m)) throw new ArgumentException(L.T("Een geluidseffect duurt van 0,5 tot 30 seconden.", "Sound effects must last from 0.5 to 30 seconds."));
+                if (requestData.PromptInfluence < 0 || requestData.PromptInfluence > 1) throw new ArgumentException(L.T("De invloed van de prompt moet tussen 0 en 1 liggen.", "Prompt influence must be between 0 and 1."));
                 values["text"] = requestData.Prompt;
                 values["model_id"] = MusicGenerationRequest.SoundEffectsModel;
                 if (!requestData.AutomaticDuration) values["duration_seconds"] = requestData.SoundEffectSeconds;
@@ -351,7 +351,7 @@ namespace ElevenLabsMusicGenerator
             var parts = outputFormat.Split('_');
             int value;
             if (parts.Length == 2 && int.TryParse(parts[1], out value) && value >= 8000 && value <= 192000) return value;
-            throw new InvalidDataException("The PCM sample rate could not be read from the output format.");
+            throw new InvalidDataException(L.T("De samplefrequentie kon niet uit het formaat worden gehaald.", "The PCM sample rate could not be read from the output format."));
         }
 
         private static void ReplaceFile(string temporaryPath, string destinationPath)
@@ -389,7 +389,7 @@ namespace ElevenLabsMusicGenerator
             }
             var message = ExtractErrorMessage(body);
             if (message.Length == 0) message = exception.Message;
-            if (statusCode.HasValue) message = "ElevenLabs returned HTTP " + (int)statusCode.Value + ": " + message;
+            if (statusCode.HasValue) message = L.T("ElevenLabs gaf fout ", "ElevenLabs returned HTTP ") + (int)statusCode.Value + ": " + message;
             return new ElevenLabsApiException(message, statusCode, body, exception);
         }
 

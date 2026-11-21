@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -15,7 +15,7 @@ namespace ElevenLabsMusicGenerator
     {
         private readonly AppSettings settings;
         private readonly Playback playback = new Playback();
-        private readonly ListBox outputs = new ListBox { AccessibleName = "Generated audio", IntegralHeight = false, Dock = DockStyle.Fill };
+        private readonly ListBox outputs = new ListBox { AccessibleName = L.T("Gemaakte geluiden", "Generated audio"), IntegralHeight = false, Dock = DockStyle.Fill };
         private readonly ComboBox modelComboBox;
         private bool updatingModelSelection;
         private static readonly string[] ModelIds = { MusicGenerationRequest.SoundEffectsModel, "music_v2_5", "music_v2", "music_v1" };
@@ -57,7 +57,7 @@ namespace ElevenLabsMusicGenerator
         public MainForm(string initialFile)
         {
             settings = AppSettings.Load();
-            playback.Failed += ex => { if (!IsDisposed) using (var result = new ApiKeyTestResultForm(ex.Message, "Could not play")) result.ShowDialog(this); };
+            playback.Failed += ex => { if (!IsDisposed) using (var result = new ApiKeyTestResultForm(ex.Message, L.T("Afspelen lukt niet", "Could not play"))) result.ShowDialog(this); };
             playback.Started += path => AppLog.Write("Playing " + Path.GetFileName(path) + ".");
             Disposed += delegate { playback.Dispose(); };
             Text = Program.DisplayName;
@@ -66,7 +66,7 @@ namespace ElevenLabsMusicGenerator
             Size = new Size(900, 700);
             KeyPreview = true;
             AccessibleName = Program.DisplayName;
-            AccessibleDescription = "Accessible portable utility for generating music and sound effects with ElevenLabs.";
+            AccessibleDescription = L.T("Toegankelijk draagbaar programma om met ElevenLabs muziek, geluidseffecten en spraak te maken.", "Accessible portable utility for generating music and sound effects with ElevenLabs.");
             if (!settings.WindowBounds.IsEmpty && Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(settings.WindowBounds)))
             {
                 StartPosition = FormStartPosition.Manual;
@@ -89,8 +89,8 @@ namespace ElevenLabsMusicGenerator
             var promptHeader = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2 };
             promptHeader.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             promptHeader.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            promptLabel = new Label { Text = "&Music prompt:", AutoSize = true, Anchor = AnchorStyles.Left, UseMnemonic = true };
-            characterCountLabel = new Label { Text = "0 of 4100 characters", AutoSize = true, Anchor = AnchorStyles.Right, AccessibleName = "Prompt character count" };
+            promptLabel = new Label { Text = L.T("&Muziekbeschrijving (prompt):", "&Music prompt:"), AutoSize = true, Anchor = AnchorStyles.Left, UseMnemonic = true };
+            characterCountLabel = new Label { Text = L.T("0 van 4100 tekens", "0 of 4100 characters"), AutoSize = true, Anchor = AnchorStyles.Right, AccessibleName = L.T("Aantal tekens in de prompt", "Prompt character count") };
             promptHeader.Controls.Add(promptLabel, 0, 0);
             promptHeader.Controls.Add(characterCountLabel, 1, 0);
             root.Controls.Add(promptHeader, 0, 0);
@@ -104,70 +104,70 @@ namespace ElevenLabsMusicGenerator
                 ScrollBars = ScrollBars.Vertical,
                 WordWrap = true,
                 MaxLength = 4100,
-                AccessibleName = "Music prompt",
-                AccessibleDescription = "Describe the music to generate. This is a standard multiline edit field.",
+                AccessibleName = L.T("Muziekbeschrijving", "Music prompt"),
+                AccessibleDescription = L.T("Beschrijf de muziek die je wilt maken. Dit is een gewoon tekstvak met meerdere regels.", "Describe the music to generate. This is a standard multiline edit field."),
                 ShortcutText = "Alt+M"
             };
             promptTextBox.TextChanged += PromptTextChanged;
             root.Controls.Add(promptTextBox, 0, 1);
 
             generationOptions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.LeftToRight, WrapContents = true, Padding = new Padding(0, 8, 0, 4) };
-            generationOptions.Controls.Add(new Label { Text = "Mo&del:", AutoSize = true, Anchor = AnchorStyles.Left });
-            modelComboBox = new ShortcutComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160, AccessibleName = "Model", AccessibleDescription = "Choose music or sound effects.", ShortcutText = "Alt+D" };
-            modelComboBox.Items.AddRange(new object[] { "Sound Effects v3", "Music v2.5", "Music v2", "Music v1" });
+            generationOptions.Controls.Add(new Label { Text = L.T("Mo&del:", "Mo&del:"), AutoSize = true, Anchor = AnchorStyles.Left });
+            modelComboBox = new ShortcutComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160, AccessibleName = "Model", AccessibleDescription = L.T("Kies muziek of geluidseffecten.", "Choose music or sound effects."), ShortcutText = "Alt+D" };
+            modelComboBox.Items.AddRange(new object[] { L.T("Geluidseffecten v3", "Sound Effects v3"), L.T("Muziek v2.5", "Music v2.5"), L.T("Muziek v2", "Music v2"), L.T("Muziek v1", "Music v1") });
             modelComboBox.SelectedIndex = Array.IndexOf(ModelIds, AppSettings.NormalizeModel(settings.ModelId));
             generationOptions.Controls.Add(modelComboBox);
-            generationOptions.Controls.Add(new Label { Text = "&Length in seconds:", AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(3, 7, 3, 3) });
-            lengthNumeric = new NumericUpDown { Minimum = 3, Maximum = 600, Value = settings.DefaultLengthSeconds, Width = 85, AccessibleName = "Length in seconds" };
+            generationOptions.Controls.Add(new Label { Text = L.T("&Lengte in seconden:", "&Length in seconds:"), AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(3, 7, 3, 3) });
+            lengthNumeric = new NumericUpDown { Minimum = 3, Maximum = 600, Value = settings.DefaultLengthSeconds, Width = 85, AccessibleName = L.T("Lengte in seconden", "Length in seconds") };
             NumericFieldBehavior.SelectCurrentValueOnFocus(lengthNumeric);
             generationOptions.Controls.Add(lengthNumeric);
-            generationOptions.Controls.Add(new Label { Text = "&Variations:", AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(16, 7, 3, 3) });
-            variationsNumeric = new NumericUpDown { Minimum = 1, Maximum = 10, Value = settings.DefaultVariations, Width = 65, AccessibleName = "Number of variations" };
+            generationOptions.Controls.Add(new Label { Text = L.T("&Varianten:", "&Variations:"), AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(16, 7, 3, 3) });
+            variationsNumeric = new NumericUpDown { Minimum = 1, Maximum = 10, Value = settings.DefaultVariations, Width = 65, AccessibleName = L.T("Aantal varianten", "Number of variations") };
             NumericFieldBehavior.SelectCurrentValueOnFocus(variationsNumeric);
             generationOptions.Controls.Add(variationsNumeric);
-            instrumentalCheckBox = new CheckBox { Text = "&Instrumental", Checked = settings.DefaultInstrumental, AutoSize = true, Margin = new Padding(16, 6, 3, 3), AccessibleName = "Force instrumental music" };
+            instrumentalCheckBox = new CheckBox { Text = L.T("&Instrumentaal", "&Instrumental"), Checked = settings.DefaultInstrumental, AutoSize = true, Margin = new Padding(16, 6, 3, 3), AccessibleName = L.T("Alleen instrumentale muziek, zonder zang", "Force instrumental music") };
             generationOptions.Controls.Add(instrumentalCheckBox);
-            usePlanCheckBox = new CheckBox { Text = "&Use composition plan", AutoSize = true, Margin = new Padding(16, 6, 3, 3), AccessibleName = "Use composition plan" };
+            usePlanCheckBox = new CheckBox { Text = L.T("Compositieplan gebr&uiken", "&Use composition plan"), AutoSize = true, Margin = new Padding(16, 6, 3, 3), AccessibleName = L.T("Compositieplan gebruiken", "Use composition plan") };
             usePlanCheckBox.CheckedChanged += delegate { SetPlanMode(); };
             generationOptions.Controls.Add(usePlanCheckBox);
-            editPlanButton = NewButton("Edit &plan...", "Open the composition plan editor", "Alt+P");
+            editPlanButton = NewButton(L.T("&Plan bewerken...", "Edit &plan..."), L.T("Open het venster om het compositieplan te bewerken", "Open the composition plan editor"), "Alt+P");
             editPlanButton.Click += delegate { EditPlan(); };
             generationOptions.Controls.Add(editPlanButton);
             soundEffectOptions = new FlowLayoutPanel { AutoSize = true, WrapContents = true };
-            automaticDurationCheckBox = new CheckBox { Text = "&Automatic duration", AutoSize = true, Checked = settings.AutomaticSoundEffectDuration, AccessibleName = "Automatic sound effect duration" };
+            automaticDurationCheckBox = new CheckBox { Text = L.T("&Automatische duur", "&Automatic duration"), AutoSize = true, Checked = settings.AutomaticSoundEffectDuration, AccessibleName = L.T("Automatische duur van het geluidseffect", "Automatic sound effect duration") };
             automaticDurationCheckBox.CheckedChanged += delegate { SetPlanMode(); };
-            loopCheckBox = new CheckBox { Text = "Loop sound effec&t", AutoSize = true, Checked = settings.LoopSoundEffect, AccessibleName = "Loop sound effect" };
-            influenceNumeric = new NumericUpDown { Minimum = 0, Maximum = 1, DecimalPlaces = 2, Increment = 0.05m, Value = settings.SoundEffectPromptInfluence, Width = 70, AccessibleName = "Prompt influence", AccessibleDescription = "Zero to one. Higher values follow the prompt more closely." };
+            loopCheckBox = new CheckBox { Text = L.T("Geluidseffect he&rhalen (loop)", "Loop sound effec&t"), AutoSize = true, Checked = settings.LoopSoundEffect, AccessibleName = L.T("Geluidseffect herhalen (loop)", "Loop sound effect") };
+            influenceNumeric = new NumericUpDown { Minimum = 0, Maximum = 1, DecimalPlaces = 2, Increment = 0.05m, Value = settings.SoundEffectPromptInfluence, Width = 70, AccessibleName = L.T("Invloed van de prompt", "Prompt influence"), AccessibleDescription = L.T("Van nul tot een. Hoe hoger, hoe preciezer de prompt wordt gevolgd.", "Zero to one. Higher values follow the prompt more closely.") };
             NumericFieldBehavior.SelectCurrentValueOnFocus(influenceNumeric);
             soundEffectOptions.Controls.Add(automaticDurationCheckBox);
             soundEffectOptions.Controls.Add(loopCheckBox);
-            soundEffectOptions.Controls.Add(new Label { Text = "Prompt influ&ence:", AutoSize = true, Anchor = AnchorStyles.Left });
+            soundEffectOptions.Controls.Add(new Label { Text = L.T("Invlo&ed van de prompt:", "Prompt influ&ence:"), AutoSize = true, Anchor = AnchorStyles.Left });
             soundEffectOptions.Controls.Add(influenceNumeric);
             generationOptions.Controls.Add(soundEffectOptions);
             root.Controls.Add(generationOptions, 0, 2);
 
-            var nameRow = NewPathRow("Base file&name:", out baseNameTextBox, null);
-            baseNameTextBox.AccessibleName = "Base filename";
+            var nameRow = NewPathRow(L.T("Basisbestands&naam:", "Base file&name:"), out baseNameTextBox, null);
+            baseNameTextBox.AccessibleName = L.T("Basisbestandsnaam", "Base filename");
             baseNameTextBox.TextChanged += delegate { if (!changingBaseName) baseNameIsAutomatic = false; };
             root.Controls.Add(nameRow, 0, 3);
 
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(0, 8, 0, 4), TabIndex = 4 };
-            generateButton = NewButton("Generate", null, "Ctrl+Enter");
+            generateButton = NewButton(L.T("Genereren", "Generate"), null, "Ctrl+Enter");
             generateButton.Click += delegate { StartGeneration(); };
-            cancelButton = NewButton("&Cancel", "Cancel the current generation", "Esc");
+            cancelButton = NewButton(L.T("Annuleren", "Cancel"), L.T("Stop met genereren", "Cancel the current generation"), "Esc");
             cancelButton.Enabled = false;
             cancelButton.Click += delegate { CancelGeneration(); };
-            openOutputButton = NewButton("Open Output Folder", "Open the Preferences output folder in File Explorer", "Ctrl+Shift+O");
+            openOutputButton = NewButton(L.T("Uitvoermap openen", "Open Output Folder"), L.T("Open de uitvoermap uit Voorkeuren in de Verkenner", "Open the Preferences output folder in File Explorer"), "Ctrl+Shift+O");
             openOutputButton.Click += delegate { OpenOutputFolder(); };
-            var preferencesButton = NewButton("P&references...", "Open preferences", "Ctrl+,");
+            var preferencesButton = NewButton(L.T("Voorkeuren...", "P&references..."), L.T("Voorkeuren openen", "Open preferences"), "Ctrl+,");
             preferencesButton.Click += delegate { ShowPreferences(0); };
-            var helpButton = NewButton("Help", "Open the HTML manual", "");
+            var helpButton = NewButton(L.T("Help", "Help"), L.T("Open de handleiding", "Open the HTML manual"), "");
             helpButton.Click += delegate { OpenManual(); };
             buttons.Controls.Add(generateButton);
             buttons.Controls.Add(cancelButton);
             var playbackButtons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.LeftToRight, TabIndex = 6 };
-            var playButton = NewButton("Pla&y", null, "Alt+Y"); playButton.Click += delegate { PlaySelected(); };
-            var stopButton = NewButton("Stop", null, "Esc"); stopButton.Click += delegate { playback.Stop(); };
+            var playButton = NewButton(L.T("Afspelen", "Pla&y"), null, "Alt+Y"); playButton.Click += delegate { PlaySelected(); };
+            var stopButton = NewButton(L.T("Stoppen", "Stop"), null, "Esc"); stopButton.Click += delegate { playback.Stop(); };
             playbackButtons.Controls.Add(playButton); playbackButtons.Controls.Add(stopButton);
             playbackButtons.Controls.Add(openOutputButton);
             playbackButtons.Controls.Add(preferencesButton);
@@ -176,13 +176,13 @@ namespace ElevenLabsMusicGenerator
             root.Controls.Add(playbackButtons, 0, 6);
 
             var statusPanel = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1, RowCount = 5, TabIndex = 7 };
-            var balanceLabel = new Label { Text = "&Balance:", AutoSize = true, UseMnemonic = true };
+            var balanceLabel = new Label { Text = L.T("&Tegoed:", "&Balance:"), AutoSize = true, UseMnemonic = true };
             balanceTextBox = new TextBox { Dock = DockStyle.Top, ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical,
-                Height = 70, TabStop = true, TabIndex = 0, Text = "Not checked. Press F5 to refresh your balance.",
-                AccessibleName = "Credit balance" };
-            var statusLabel = new Label { Text = "&Status log:", AutoSize = true, UseMnemonic = true };
-            progressBar = new ProgressBar { Dock = DockStyle.Top, Height = 18, Style = ProgressBarStyle.Continuous, AccessibleName = "Generation progress" };
-            statusTextBox = new AccessibleStatusTextBox { Dock = DockStyle.Top, ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Height = 90, TabStop = true, TabIndex = 1, Text = "Ready.", AccessibleName = "Status log", ShortcutText = "Alt+S" };
+                Height = 70, TabStop = true, TabIndex = 0, Text = L.T("Nog niet bekeken. Druk op F5 om je tegoed te bekijken.", "Not checked. Press F5 to refresh your balance."),
+                AccessibleName = L.T("Tegoed", "Credit balance") };
+            var statusLabel = new Label { Text = L.T("Statusberi&chten:", "&Status log:"), AutoSize = true, UseMnemonic = true };
+            progressBar = new ProgressBar { Dock = DockStyle.Top, Height = 18, Style = ProgressBarStyle.Continuous, AccessibleName = L.T("Voortgang van het genereren", "Generation progress") };
+            statusTextBox = new AccessibleStatusTextBox { Dock = DockStyle.Top, ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Height = 90, TabStop = true, TabIndex = 1, Text = L.T("Klaar.", "Ready."), AccessibleName = L.T("Statusberichten", "Status log"), ShortcutText = L.Engels ? "Alt+S" : "Alt+C" };
             statusPanel.Controls.Add(balanceLabel, 0, 0);
             statusPanel.Controls.Add(balanceTextBox, 0, 1);
             statusPanel.Controls.Add(statusLabel, 0, 2);
@@ -194,8 +194,8 @@ namespace ElevenLabsMusicGenerator
             outputs.KeyDown += (sender, args) => { if (args.KeyCode == Keys.Enter && args.Modifiers == Keys.None) { PlaySelected(); args.Handled = args.SuppressKeyPress = true; } };
 
             Controls.Add(root);
-            var statusStrip = new StatusStrip { AccessibleName = "Status bar" };
-            promptCountStatus = new ToolStripStatusLabel { AccessibleName = "Prompt character count" };
+            var statusStrip = new StatusStrip { AccessibleName = L.T("Statusbalk", "Status bar") };
+            promptCountStatus = new ToolStripStatusLabel { AccessibleName = L.T("Aantal tekens in de prompt", "Prompt character count") };
             statusStrip.Items.Add(promptCountStatus);
             Controls.Add(statusStrip);
             root.BringToFront();
@@ -214,7 +214,7 @@ namespace ElevenLabsMusicGenerator
                 SetGenerationMode();
                 var apiKey = AppPaths.LoadApiKey();
                 if (AppPaths.ApiKeyLoadMessage.Length > 0)
-                    MessageBox.Show(this, AppPaths.ApiKeyLoadMessage, "API key storage", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, AppPaths.ApiKeyLoadMessage, L.T("Bewaren van de API-sleutel", "API key storage"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 if (apiKey.Length == 0) ShowPreferences(1);
                 CheckBalance();
                 promptTextBox.Focus();
@@ -227,8 +227,8 @@ namespace ElevenLabsMusicGenerator
         {
             if (keyData == (Keys.Alt | Keys.M)) { promptTextBox.Focus(); return true; }
             if (keyData == (Keys.Alt | Keys.D)) { if (!generationRunning) modelComboBox.Focus(); return true; }
-            if (keyData == (Keys.Alt | Keys.S)) { statusTextBox.Focus(); return true; }
-            if (keyData == (Keys.Alt | Keys.B)) { balanceTextBox.Focus(); return true; }
+            if (keyData == (L.Engels ? Keys.Alt | Keys.S : Keys.Alt | Keys.C)) { statusTextBox.Focus(); return true; }
+            if (keyData == (L.Engels ? Keys.Alt | Keys.B : Keys.Alt | Keys.T)) { balanceTextBox.Focus(); return true; }
             if (keyData == (Keys.Control | Keys.Enter)) { StartGeneration(); return true; }
             if (keyData == Keys.F5) { CheckBalance(); return true; }
             if (keyData == Keys.Escape) { playback.Stop(); if (generationRunning) CancelGeneration(); return true; }
@@ -240,46 +240,106 @@ namespace ElevenLabsMusicGenerator
 
         private MenuStrip BuildMenu()
         {
-            var menu = new MenuStrip { AccessibleName = "Menu bar" };
-            var file = new ToolStripMenuItem("&File");
-            file.DropDownItems.Add(MenuCommand("&New Prompt", delegate { NewPrompt(); }, Keys.Control | Keys.N, "Ctrl+N"));
-            file.DropDownItems.Add(MenuCommand("&Open Prompt or Plan...", delegate { OpenPrompt(); }, Keys.Control | Keys.O, "Ctrl+O"));
-            file.DropDownItems.Add(MenuCommand("&Save Prompt", delegate { SavePrompt(false); }, Keys.Control | Keys.S, "Ctrl+S"));
-            file.DropDownItems.Add(MenuCommand("Save Prompt &As...", delegate { SavePrompt(true); }, Keys.Control | Keys.Shift | Keys.S, "Ctrl+Shift+S"));
+            var menu = new MenuStrip { AccessibleName = L.T("Menubalk", "Menu bar") };
+            var file = new ToolStripMenuItem(L.T("&Bestand", "&File"));
+            file.DropDownItems.Add(MenuCommand(L.T("&Nieuwe prompt", "&New Prompt"), delegate { NewPrompt(); }, Keys.Control | Keys.N, "Ctrl+N"));
+            file.DropDownItems.Add(MenuCommand(L.T("Prompt of plan &openen...", "&Open Prompt or Plan..."), delegate { OpenPrompt(); }, Keys.Control | Keys.O, "Ctrl+O"));
+            file.DropDownItems.Add(MenuCommand(L.T("Prompt op&slaan", "&Save Prompt"), delegate { SavePrompt(false); }, Keys.Control | Keys.S, "Ctrl+S"));
+            file.DropDownItems.Add(MenuCommand(L.T("Prompt opslaan &als...", "Save Prompt &As..."), delegate { SavePrompt(true); }, Keys.Control | Keys.Shift | Keys.S, "Ctrl+Shift+S"));
             file.DropDownItems.Add(new ToolStripSeparator());
-            file.DropDownItems.Add(MenuCommand("Open Output &Folder", delegate { OpenOutputFolder(); }, Keys.Control | Keys.Shift | Keys.O, "Ctrl+Shift+O"));
+            file.DropDownItems.Add(MenuCommand(L.T("&Uitvoermap openen", "Open Output &Folder"), delegate { OpenOutputFolder(); }, Keys.Control | Keys.Shift | Keys.O, "Ctrl+Shift+O"));
             file.DropDownItems.Add(new ToolStripSeparator());
-            file.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, delegate { Close(); }));
+            file.DropDownItems.Add(new ToolStripMenuItem(L.T("A&fsluiten", "E&xit"), null, delegate { Close(); }));
 
-            var generate = new ToolStripMenuItem("&Generate");
-            generate.DropDownItems.Add(MenuCommand("&Generate", delegate { StartGeneration(); }, Keys.Control | Keys.Enter, "Ctrl+Enter"));
-            generate.DropDownItems.Add(MenuCommand("&Cancel Generation", delegate { CancelGeneration(); }, Keys.None, "Esc"));
-            generate.DropDownItems.Add(new ToolStripMenuItem("Edit Composition &Plan...", null, delegate { EditPlan(); }));
+            var generate = new ToolStripMenuItem(L.T("&Genereren", "&Generate"));
+            generate.DropDownItems.Add(MenuCommand(L.T("&Genereren", "&Generate"), delegate { StartGeneration(); }, Keys.Control | Keys.Enter, "Ctrl+Enter"));
+            generate.DropDownItems.Add(MenuCommand(L.T("Genereren &annuleren", "&Cancel Generation"), delegate { CancelGeneration(); }, Keys.None, "Esc"));
+            generate.DropDownItems.Add(new ToolStripMenuItem(L.T("Compositie&plan bewerken...", "Edit Composition &Plan..."), null, delegate { EditPlan(); }));
 
-            var options = new ToolStripMenuItem("&Options");
-            options.DropDownItems.Add(MenuCommand("&Preferences...", delegate { ShowPreferences(0); }, Keys.Control | Keys.Oemcomma, "Ctrl+,"));
-            options.DropDownItems.Add(MenuCommand("Refresh &Balance", delegate { CheckBalance(); }, Keys.F5, "F5"));
-            options.DropDownItems.Add(MenuCommand("&Audio settings...", delegate { ShowPreferences(3); }, Keys.Control | Keys.Shift | Keys.U, "Ctrl+Shift+U"));
-            options.DropDownItems.Add(MenuCommand("Pla&y Selected", delegate { PlaySelected(); }, Keys.Alt | Keys.Y, "Alt+Y"));
-            options.DropDownItems.Add(MenuCommand("&Stop Playback", delegate { playback.Stop(); }, Keys.None, "Esc"));
+            var options = new ToolStripMenuItem(L.T("&Opties", "&Options"));
+            options.DropDownItems.Add(MenuCommand(L.T("&Voorkeuren...", "&Preferences..."), delegate { ShowPreferences(0); }, Keys.Control | Keys.Oemcomma, "Ctrl+,"));
+            options.DropDownItems.Add(MenuCommand(L.T("&Tegoed vernieuwen", "Refresh &Balance"), delegate { CheckBalance(); }, Keys.F5, "F5"));
+            options.DropDownItems.Add(MenuCommand(L.T("&Geluidsinstellingen...", "&Audio settings..."), delegate { ShowPreferences(3); }, Keys.Control | Keys.Shift | Keys.U, "Ctrl+Shift+U"));
+            options.DropDownItems.Add(MenuCommand(L.T("Gekozen geluid af&spelen", "Pla&y Selected"), delegate { PlaySelected(); }, Keys.Alt | Keys.Y, "Alt+Y"));
+            options.DropDownItems.Add(MenuCommand(L.T("Afspelen st&oppen", "&Stop Playback"), delegate { playback.Stop(); }, Keys.None, "Esc"));
 
-            var help = new ToolStripMenuItem("&Help");
-            soundtrackMenuItem = MenuCommand("&Video soundtrack...", delegate { OpenVideoSoundtrack(); }, Keys.Control | Keys.Shift | Keys.V, "Ctrl+Shift+V");
+            var help = new ToolStripMenuItem(L.T("&Help", "&Help"));
+            soundtrackMenuItem = MenuCommand(L.T("&Muziek bij een video...", "&Video soundtrack..."), delegate { OpenVideoSoundtrack(); }, Keys.Control | Keys.Shift | Keys.V, "Ctrl+Shift+V");
             generate.DropDownItems.Add(soundtrackMenuItem);
-            help.DropDownItems.Add(MenuCommand("Check for &Updates...", delegate { UpdateService.CheckForUpdates(this, settings, false); }, Keys.Shift | Keys.F1, "Shift+F1"));
-            help.DropDownItems.Add(new ToolStripMenuItem("&Version History...", null, delegate { VersionHistory.Show(this); }));
-            help.DropDownItems.Add(MenuCommand("Help for Focused &Control", delegate { ContextHelp.Show(this, OpenManual, HelpDescription); }, Keys.F1, "F1"));
-            help.DropDownItems.Add(new ToolStripMenuItem("ElevenLabs Music and Sound FX Generator &Help", null, delegate { OpenManual(); }));
-            help.DropDownItems.Add(MenuCommand("&Project Page", delegate { OpenProjectPage(); }, Keys.Control | Keys.F1, "Ctrl+F1"));
-            help.DropDownItems.Add(MenuCommand("Usage Anal&ytics", delegate { OpenUsageAnalytics(); }, Keys.Alt | Keys.F1, "Alt+F1"));
-            help.DropDownItems.Add(new ToolStripMenuItem("&Donate", null, delegate { OpenDonatePage(); }));
-            help.DropDownItems.Add(new ToolStripMenuItem("&About", null, delegate { ShowAbout(); }));
+            help.DropDownItems.Add(MenuCommand(L.T("Zoeken naar &updates...", "Check for &Updates..."), delegate { UpdateService.CheckForUpdates(this, settings, false); }, Keys.Shift | Keys.F1, "Shift+F1"));
+            help.DropDownItems.Add(new ToolStripMenuItem(L.T("&Versiegeschiedenis...", "&Version History..."), null, delegate { VersionHistory.Show(this); }));
+            help.DropDownItems.Add(MenuCommand(L.T("Hulp bij het &onderdeel met de focus", "Help for Focused &Control"), delegate { ContextHelp.Show(this, OpenManual, HelpDescription); }, Keys.F1, "F1"));
+            help.DropDownItems.Add(new ToolStripMenuItem(L.T("&Handleiding", "ElevenLabs Music and Sound FX Generator &Help"), null, delegate { OpenManual(); }));
+            help.DropDownItems.Add(MenuCommand(L.T("&Projectpagina", "&Project Page"), delegate { OpenProjectPage(); }, Keys.Control | Keys.F1, "Ctrl+F1"));
+            help.DropDownItems.Add(MenuCommand(L.T("&Gebruiksstatistieken", "Usage Anal&ytics"), delegate { OpenUsageAnalytics(); }, Keys.Alt | Keys.F1, "Alt+F1"));
+            help.DropDownItems.Add(new ToolStripMenuItem(L.T("&Doneren aan Andre Louis", "&Donate"), null, delegate { OpenDonatePage(); }));
+            help.DropDownItems.Add(new ToolStripMenuItem(L.T("Ove&r dit programma", "&About"), null, delegate { ShowAbout(); }));
             menu.Items.Add(file);
             menu.Items.Add(generate);
+            var spraak = new ToolStripMenuItem(L.T("&Spraak en stemmen", "Spee&ch and voices"));
+            spraak.DropDownItems.Add(MenuCommand(L.T("&Venster Spraak en stemmen openen", "&Open the Speech and voices window"), delegate { OpenSpraak(-1); }, Keys.Control | Keys.T, "Ctrl+T"));
+            spraak.DropDownItems.Add(new ToolStripSeparator());
+            for (var i = 0; i < SpraakVenster.FunctieNamen.Length; i++)
+            {
+                var nummer = i;
+                spraak.DropDownItems.Add(new ToolStripMenuItem(SpraakVenster.FunctieNamen[i] + "...", null, delegate { OpenSpraak(nummer); }));
+            }
+            menu.Items.Add(spraak);
+            var taal = new ToolStripMenuItem(L.T("Taa&l (Language)", "&Language (Taal)"));
+            var nederlands = new ToolStripMenuItem("&Nederlands", null, delegate { KiesTaal(false); }) { Checked = !L.Engels };
+            var engels = new ToolStripMenuItem("&English", null, delegate { KiesTaal(true); }) { Checked = L.Engels };
+            taal.DropDownItems.Add(nederlands);
+            taal.DropDownItems.Add(engels);
+            options.DropDownItems.Add(new ToolStripSeparator());
+            options.DropDownItems.Add(taal);
             menu.Items.Add(options);
             menu.Items.Add(help);
             return menu;
         }
+
+        private SpraakVenster spraakVenster;
+
+        private void OpenSpraak(int functie)
+        {
+            if (spraakVenster == null || spraakVenster.IsDisposed)
+            {
+                spraakVenster = new SpraakVenster(settings, Math.Max(0, functie));
+                spraakVenster.FormClosed += delegate { spraakVenster = null; };
+                spraakVenster.Show();
+                return;
+            }
+            if (spraakVenster.WindowState == FormWindowState.Minimized) spraakVenster.WindowState = FormWindowState.Normal;
+            spraakVenster.Activate();
+            if (functie >= 0) spraakVenster.KiesFunctie(functie);
+        }
+
+        private void KiesTaal(bool engels)
+        {
+            if (engels == L.Engels) return;
+            if (generationRunning)
+            {
+                MessageBox.Show(this, L.T("Wacht tot het genereren klaar is.", "Wait until generation has finished."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            try { L.Bewaar(engels); }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            var vraag = engels ? "The program will now restart in English. Your prompt draft is kept." : "Het programma start nu opnieuw in het Nederlands. Je ontwerp-prompt blijft bewaard.";
+            if (MessageBox.Show(this, vraag, Program.AppName, MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
+            {
+                try { L.Bewaar(!engels); } catch (Exception) { }
+                return;
+            }
+            SaveDraftNonFatal();
+            herstarten = true;
+            Close();
+        }
+
+        private bool herstarten;
+        public bool Herstarten { get { return herstarten; } }
 
         private static ToolStripMenuItem MenuCommand(string label, EventHandler action, Keys shortcut, string display)
         {
@@ -312,19 +372,19 @@ namespace ElevenLabsMusicGenerator
             catch (Exception ex)
             {
                 if (!(ex is InvalidDataException || ex is IOException || ex is UnauthorizedAccessException)) throw;
-                MessageBox.Show(this, "Generation cannot resume safely." + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, L.T("Het genereren kan niet veilig verder gaan.", "Generation cannot resume safely.") + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             if (plan.PendingVariationIndices.Count == 0)
             {
-                SetStatus("All requested variations already exist. No credits were spent.");
-                MessageBox.Show(this, "All " + request.Variations + " requested variations already exist in " + request.OutputFolder + "." + Environment.NewLine + Environment.NewLine + "No request was sent to ElevenLabs. Choose a new base filename to create another batch.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SetStatus(L.T("Alle gevraagde varianten bestaan al. Er is geen tegoed gebruikt.", "All requested variations already exist. No credits were spent."));
+                MessageBox.Show(this, L.T("Alle ", "All ") + request.Variations + L.T(" gevraagde varianten bestaan al in ", " requested variations already exist in ") + request.OutputFolder + "." + Environment.NewLine + Environment.NewLine + L.T("Er is niets naar ElevenLabs gestuurd. Kies een nieuwe basisbestandsnaam om een nieuwe reeks te maken.", "No request was sent to ElevenLabs. Choose a new base filename to create another batch."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             var apiKey = AppPaths.LoadApiKey();
             if (apiKey.Length == 0)
             {
-                var message = AppPaths.ApiKeyLoadMessage.Length > 0 ? AppPaths.ApiKeyLoadMessage : "Enter your ElevenLabs API key in Preferences before generating audio.";
+                var message = AppPaths.ApiKeyLoadMessage.Length > 0 ? AppPaths.ApiKeyLoadMessage : L.T("Zet eerst je API-sleutel van ElevenLabs in Voorkeuren.", "Enter your ElevenLabs API key in Preferences before generating audio.");
                 MessageBox.Show(this, message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowPreferences(1);
                 return;
@@ -333,15 +393,15 @@ namespace ElevenLabsMusicGenerator
             var outputPaths = request.OutputPaths();
             var pending = plan.PendingVariationIndices.ToArray();
             var summary = request.ConfirmationIntro(pending.Length) +
-                Environment.NewLine + Environment.NewLine + "Requested variations: " + request.Variations + ". Already saved: " + plan.ExistingCount + "." +
-                Environment.NewLine + "New variations: " + string.Join(", ", pending.Select(index => index.ToString()).ToArray()) + "." +
-                Environment.NewLine + "Mode: " + (request.IsSoundEffect ? "Sound effects; loop " + (request.Loop ? "on" : "off") + "; prompt influence " + request.PromptInfluence : request.Plan == null ? "Music prompt" : "Composition plan with " + request.Plan.Sections.Count + " sections") +
-                Environment.NewLine + "Model: " + request.ModelId + Environment.NewLine + "Format: " + request.OutputFormat +
-                Environment.NewLine + "Save generated lyrics and details: " + (request.IncludeDetails ? "Yes" : "No") + "." +
-                Environment.NewLine + "Folder: " + request.OutputFolder + Environment.NewLine + Environment.NewLine + "This will spend ElevenLabs credits.";
-            if (plan.ExistingCount > 0) summary += Environment.NewLine + "The " + plan.ExistingCount + " completed track" + (plan.ExistingCount == 1 ? " will" : "s will") + " be kept unchanged.";
-            if (plan.ExistingCount > 0 && request.OutputFormat.StartsWith("mp3_", StringComparison.OrdinalIgnoreCase)) summary += Environment.NewLine + "Existing MP3 duration cannot be verified automatically; confirm these files belong to this batch.";
-            if (MessageBox.Show(this, summary, "Confirm generation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+                Environment.NewLine + Environment.NewLine + L.T("Gevraagde varianten: ", "Requested variations: ") + request.Variations + L.T(". Al bewaard: ", ". Already saved: ") + plan.ExistingCount + "." +
+                Environment.NewLine + L.T("Nieuwe varianten: ", "New variations: ") + string.Join(", ", pending.Select(index => index.ToString()).ToArray()) + "." +
+                Environment.NewLine + L.T("Soort: ", "Mode: ") + (request.IsSoundEffect ? L.T("Geluidseffecten; herhalen ", "Sound effects; loop ") + (request.Loop ? L.T("aan", "on") : L.T("uit", "off")) + L.T("; invloed van de prompt ", "; prompt influence ") + request.PromptInfluence : request.Plan == null ? L.T("Muziekbeschrijving", "Music prompt") : L.T("Compositieplan met ", "Composition plan with ") + request.Plan.Sections.Count + L.T(" delen", " sections")) +
+                Environment.NewLine + L.T("Model: ", "Model: ") + request.ModelId + Environment.NewLine + L.T("Formaat: ", "Format: ") + request.OutputFormat +
+                Environment.NewLine + L.T("Songteksten en details bewaren: ", "Save generated lyrics and details: ") + (request.IncludeDetails ? L.T("Ja", "Yes") : L.T("Nee", "No")) + "." +
+                Environment.NewLine + L.T("Map: ", "Folder: ") + request.OutputFolder + Environment.NewLine + Environment.NewLine + L.T("Dit kost tegoed bij ElevenLabs. Doorgaan?", "This will spend ElevenLabs credits.");
+            if (plan.ExistingCount > 0) summary += Environment.NewLine + L.T("De ", "The ") + plan.ExistingCount + L.T(" al gemaakte nummer", " completed track") + (plan.ExistingCount == 1 ? L.T(" blijft", " will") : L.T("s blijven", "s will")) + L.T(" ongewijzigd.", " be kept unchanged.");
+            if (plan.ExistingCount > 0 && request.OutputFormat.StartsWith("mp3_", StringComparison.OrdinalIgnoreCase)) summary += Environment.NewLine + L.T("De lengte van bestaande MP3-bestanden kan niet automatisch worden gecontroleerd. Kijk zelf of ze bij deze reeks horen.", "Existing MP3 duration cannot be verified automatically; confirm these files belong to this batch.");
+            if (MessageBox.Show(this, summary, L.T("Genereren bevestigen", "Confirm generation"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
 
             SaveGenerationSettings();
             settings.DefaultVariations = request.Variations;
@@ -350,7 +410,7 @@ namespace ElevenLabsMusicGenerator
             try { settings.Save(); }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Generation choices could not be saved." + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, L.T("De keuzes voor het genereren konden niet worden bewaard.", "Generation choices could not be saved.") + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             SaveDraftNonFatal();
@@ -372,20 +432,20 @@ namespace ElevenLabsMusicGenerator
                         completed.Add(client.GenerateOne(request, outputPaths[index - 1], index, generationCancellation.Token, progress));
                     }
                 });
-                SetStatus("Generation complete. Saved " + completed.Count + " new track" + (completed.Count == 1 ? "" : "s") + "; kept " + plan.ExistingCount + " existing." + RunStatistics(completed, elapsed.Elapsed));
+                SetStatus(L.T("Klaar met genereren. Bewaard: ", "Generation complete. Saved ") + completed.Count + (completed.Count == 1 ? L.T(" nieuw nummer", " new track") : L.T(" nieuwe nummers", " new tracks")) + L.T("; bewaard gebleven: ", "; kept ") + plan.ExistingCount + L.T(" bestaande.", " existing.") + RunStatistics(completed, elapsed.Elapsed));
                 if (settings.AutoPlayGenerations) playback.PlaySequence(completed.Select(item => item.OutputPath), settings.PlaybackDevice);
                 if (settings.CompletionSound && !settings.AutoPlayGenerations) System.Media.SystemSounds.Asterisk.Play();
             }
             catch (OperationCanceledException)
             {
-                SetStatus("Generation cancelled. Completed tracks were kept; incomplete temporary files were removed." + RunStatistics(completed, elapsed.Elapsed));
+                SetStatus(L.T("Genereren geannuleerd. Klare nummers zijn bewaard; halve tijdelijke bestanden zijn weggehaald.", "Generation cancelled. Completed tracks were kept; incomplete temporary files were removed.") + RunStatistics(completed, elapsed.Elapsed));
                 AppLog.Write("Generation cancelled after " + completed.Count + " completed variation(s).");
             }
             catch (Exception ex)
             {
                 AppLog.WriteException("Generation failed", ex);
-                SetStatus("Generation failed: " + ex.Message + RunStatistics(completed, elapsed.Elapsed));
-                MessageBox.Show(this, "Generation failed." + Environment.NewLine + Environment.NewLine + ex.Message + Environment.NewLine + Environment.NewLine + "Completed tracks were kept and incomplete temporary files were removed.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus(L.T("Genereren mislukt: ", "Generation failed: ") + ex.Message + RunStatistics(completed, elapsed.Elapsed));
+                MessageBox.Show(this, L.T("Genereren mislukt.", "Generation failed.") + Environment.NewLine + Environment.NewLine + ex.Message + Environment.NewLine + Environment.NewLine + L.T("Klare nummers zijn bewaard en halve tijdelijke bestanden zijn weggehaald.", "Completed tracks were kept and incomplete temporary files were removed."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -404,9 +464,9 @@ namespace ElevenLabsMusicGenerator
         private static string RunStatistics(IEnumerable<GenerationResult> completed, TimeSpan elapsed)
         {
             var tracks = completed.ToArray();
-            var perTrack = tracks.Length == 0 ? string.Empty : Environment.NewLine + "Generation time per track:" + Environment.NewLine +
-                string.Join(Environment.NewLine, tracks.Select(item => Path.GetFileName(item.OutputPath) + ": " + item.Elapsed.TotalSeconds.ToString("0.0") + " seconds.").ToArray());
-            return Environment.NewLine + "Elapsed: " + elapsed.TotalSeconds.ToString("0.0") + " seconds." + perTrack;
+            var perTrack = tracks.Length == 0 ? string.Empty : Environment.NewLine + L.T("Tijd per nummer:", "Generation time per track:") + Environment.NewLine +
+                string.Join(Environment.NewLine, tracks.Select(item => Path.GetFileName(item.OutputPath) + ": " + item.Elapsed.TotalSeconds.ToString("0.0") + L.T(" seconden.", " seconds.")).ToArray());
+            return Environment.NewLine + L.T("Totale tijd: ", "Elapsed: ") + elapsed.TotalSeconds.ToString("0.0") + L.T(" seconden.", " seconds.") + perTrack;
         }
 
         private MusicGenerationRequest BuildRequest()
@@ -416,45 +476,45 @@ namespace ElevenLabsMusicGenerator
             var usePlan = !isSoundEffect && usePlanCheckBox.Checked;
             if (isSoundEffect && prompt.Length > MusicGenerationRequest.SoundEffectsPromptLimit)
             {
-                MessageBox.Show(this, "Sound effects prompts can contain no more than 450 characters. Your text has been kept so you can edit it or switch models.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Een prompt voor geluidseffecten mag hooguit 450 tekens hebben. Je tekst is bewaard, zodat je hem kunt inkorten of een ander model kunt kiezen.", "Sound effects prompts can contain no more than 450 characters. Your text has been kept so you can edit it or switch models."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 promptTextBox.Focus();
                 return null;
             }
             if (isSoundEffect && settings.OutputFormat.StartsWith("mp3_48000", StringComparison.Ordinal))
             {
-                MessageBox.Show(this, "Sound Effects supports the 44.1 kHz WAV and MP3 options. Choose one in Preferences.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Geluidseffecten werken alleen met WAV en MP3 van 44,1 kHz. Kies er een in Voorkeuren.", "Sound Effects supports the 44.1 kHz WAV and MP3 options. Choose one in Preferences."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowPreferences(3);
                 return null;
             }
             if (prompt.Length == 0 && !usePlan)
             {
-                MessageBox.Show(this, "Enter a prompt first.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Typ eerst een prompt.", "Enter a prompt first."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 promptTextBox.Focus();
                 return null;
             }
             if (usePlan && activePlan == null)
             {
-                MessageBox.Show(this, "Create or open a composition plan before generating music.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Maak of open eerst een compositieplan.", "Create or open a composition plan before generating music."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 EditPlan();
                 return null;
             }
             if (usePlan && settings.ModelId == "music_v1")
             {
-                MessageBox.Show(this, "Composition plans require Music v2 or v2.5. Choose a music model in the main window.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Een compositieplan werkt alleen met Muziek v2 of v2.5. Kies een muziekmodel in het hoofdvenster.", "Composition plans require Music v2 or v2.5. Choose a music model in the main window."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 modelComboBox.Focus();
                 return null;
             }
             var folder = Environment.ExpandEnvironmentVariables((settings.DefaultOutputFolder ?? string.Empty).Trim().Trim('"'));
             if (folder.Length == 0)
             {
-                MessageBox.Show(this, "Choose an output folder in Preferences.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Kies een uitvoermap in Voorkeuren.", "Choose an output folder in Preferences."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowPreferences(0);
                 return null;
             }
             try { Directory.CreateDirectory(folder); }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "The output folder could not be created." + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, L.T("De uitvoermap kon niet worden gemaakt.", "The output folder could not be created.") + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ShowPreferences(0);
                 return null;
             }
@@ -497,7 +557,7 @@ namespace ElevenLabsMusicGenerator
             BeginInvoke(new Action(delegate
             {
                 var size = progress.BytesReceived <= 0 ? string.Empty : " " + FormatBytes(progress.BytesReceived) + " received.";
-                SetStatus("Variation " + progress.VariationIndex + " of " + progress.VariationCount + ": " + progress.Message + size);
+                SetStatus(L.T("Variant ", "Variation ") + progress.VariationIndex + L.T(" van ", " of ") + progress.VariationCount + ": " + progress.Message + size);
             }));
         }
 
@@ -529,7 +589,7 @@ namespace ElevenLabsMusicGenerator
         private void CancelGeneration()
         {
             if (!generationRunning || generationCancellation == null) return;
-            SetStatus("Cancelling after the current network operation stops...");
+            SetStatus(L.T("Annuleren zodra het huidige verzoek bij ElevenLabs stopt...", "Cancelling after the current network operation stops..."));
             generationCancellation.Cancel();
             cancelButton.Enabled = false;
         }
@@ -544,7 +604,7 @@ namespace ElevenLabsMusicGenerator
             baseNameIsAutomatic = true;
             baseNameTextBox.Clear();
             usePlanCheckBox.Checked = false;
-            SetStatus("New prompt.");
+            SetStatus(L.T("Nieuwe prompt.", "New prompt."));
             SaveDraftNonFatal();
             promptTextBox.Focus();
         }
@@ -554,8 +614,8 @@ namespace ElevenLabsMusicGenerator
             if (generationRunning) return;
             using (var dialog = new OpenFileDialog())
             {
-                dialog.Title = "Open prompt";
-                dialog.Filter = "Prompts and plans (*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json)|*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json|All files (*.*)|*.*";
+                dialog.Title = L.T("Prompt openen", "Open prompt");
+                dialog.Filter = L.T("Prompts en plannen (*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json)|*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json|Alle bestanden (*.*)|*.*", "Prompts and plans (*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json)|*.txt;*.ini;*.sfx.json;*.plan.json;*.details.json|All files (*.*)|*.*");
                 if (Directory.Exists(settings.DefaultOutputFolder)) dialog.InitialDirectory = settings.DefaultOutputFolder;
                 if (dialog.ShowDialog(this) == DialogResult.OK) LoadPromptFile(dialog.FileName);
             }
@@ -572,13 +632,13 @@ namespace ElevenLabsMusicGenerator
                 if (string.IsNullOrWhiteSpace(initialFile) || !File.Exists(initialFile))
                 {
                     promptTextBox.Text = effects ? soundEffectPrompt : longMusicPrompt;
-                    if (promptTextBox.TextLength > 0) SetStatus("Recovered the previous prompt draft.");
+                    if (promptTextBox.TextLength > 0) SetStatus(L.T("De vorige ontwerp-prompt is teruggezet.", "Recovered the previous prompt draft."));
                 }
             }
             catch (Exception ex)
             {
                 AppLog.WriteException("Could not load prompt draft", ex);
-                SetStatus("The saved prompt draft could not be loaded: " + ex.Message);
+                SetStatus(L.T("De bewaarde ontwerp-prompt kon niet worden geladen: ", "The saved prompt draft could not be loaded: ") + ex.Message);
             }
             if (!string.IsNullOrWhiteSpace(initialFile) && File.Exists(initialFile)) LoadPromptFile(initialFile);
         }
@@ -602,14 +662,14 @@ namespace ElevenLabsMusicGenerator
                     usePlanCheckBox.Checked = true;
                     SavePlanDraftNonFatal();
                     SetPlanMode();
-                    SetStatus("Opened composition plan: " + Path.GetFileName(path) + ". Review its sections before generating.");
+                    SetStatus(L.T("Compositieplan geopend: ", "Opened composition plan: ") + Path.GetFileName(path) + L.T(". Kijk de delen na voordat je gaat genereren.", ". Review its sections before generating."));
                     if (Visible) EditPlan();
                     else Shown += delegate { BeginInvoke((Action)EditPlan); };
                     return;
                 }
                 if (Path.GetExtension(path).Equals(".json", StringComparison.OrdinalIgnoreCase) &&
                     !path.EndsWith(".sfx.json", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidDataException("Choose a .plan.json or .details.json file to open a composition plan, or a .sfx.json file for a sound effect prompt.");
+                    throw new InvalidDataException(L.T("Kies een .plan.json- of .details.json-bestand voor een compositieplan, of een .sfx.json-bestand voor een geluidseffect.", "Choose a .plan.json or .details.json file to open a composition plan, or a .sfx.json file for a sound effect prompt."));
                 if (settings.ModelId == MusicGenerationRequest.SoundEffectsModel) soundEffectPrompt = null;
                 else longMusicPrompt = null;
                 var text = File.ReadAllText(path, Encoding.UTF8);
@@ -629,12 +689,12 @@ namespace ElevenLabsMusicGenerator
                 if (Path.GetExtension(path).Equals(".ini", StringComparison.OrdinalIgnoreCase))
                 {
                     text = IniFile.Load(path).Get("music", "prompt", string.Empty);
-                    if (text.Length == 0) throw new InvalidDataException("The INI file does not contain a [music] prompt value.");
+                    if (text.Length == 0) throw new InvalidDataException(L.T("Het INI-bestand heeft geen prompt onder [music].", "The INI file does not contain a [music] prompt value."));
                 }
                 text = text.TrimEnd('\r', '\n');
-                if (text.Length > 4100) throw new InvalidDataException("The prompt exceeds the 4100-character Music limit.");
+                if (text.Length > 4100) throw new InvalidDataException(L.T("De prompt is langer dan 4100 tekens, het maximum voor muziek.", "The prompt exceeds the 4100-character Music limit."));
                 if (path.EndsWith(".sfx.json", StringComparison.OrdinalIgnoreCase) && text.Length > MusicGenerationRequest.SoundEffectsPromptLimit)
-                    throw new InvalidDataException("The sound effect prompt exceeds the 450-character limit.");
+                    throw new InvalidDataException(L.T("De prompt voor het geluidseffect is langer dan 450 tekens.", "The sound effect prompt exceeds the 450-character limit."));
                 if (!path.EndsWith(".sfx.json", StringComparison.OrdinalIgnoreCase) &&
                     settings.ModelId == MusicGenerationRequest.SoundEffectsModel && text.Length > MusicGenerationRequest.SoundEffectsPromptLimit)
                 {
@@ -648,12 +708,12 @@ namespace ElevenLabsMusicGenerator
                 changingBaseName = true;
                 baseNameTextBox.Text = FileNameHelper.SafeStem(path.EndsWith(".sfx.json", StringComparison.OrdinalIgnoreCase) ? Path.GetFileName(path).Substring(0, Path.GetFileName(path).Length - 9) : Path.GetFileNameWithoutExtension(path), promptTextBox.Text);
                 changingBaseName = false;
-                SetStatus("Opened prompt: " + Path.GetFileName(path));
+                SetStatus(L.T("Prompt geopend: ", "Opened prompt: ") + Path.GetFileName(path));
                 promptTextBox.Focus();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "The prompt could not be opened." + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, L.T("De prompt kon niet worden geopend.", "The prompt could not be opened.") + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -664,12 +724,12 @@ namespace ElevenLabsMusicGenerator
                 if (saveAs || string.IsNullOrWhiteSpace(currentPromptPath) || Path.GetExtension(currentPromptPath).Equals(".ini", StringComparison.OrdinalIgnoreCase) || Path.GetExtension(currentPromptPath).Equals(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     var folder = Environment.ExpandEnvironmentVariables((settings.DefaultOutputFolder ?? string.Empty).Trim().Trim('"'));
-                    if (folder.Length == 0) throw new InvalidOperationException("Choose an output folder in Preferences before saving a prompt.");
+                    if (folder.Length == 0) throw new InvalidOperationException(L.T("Kies eerst een uitvoermap in Voorkeuren.", "Choose an output folder in Preferences before saving a prompt."));
                     Directory.CreateDirectory(folder);
                     using (var dialog = new SaveFileDialog())
                     {
-                        dialog.Title = "Save prompt";
-                        dialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                        dialog.Title = L.T("Prompt opslaan", "Save prompt");
+                        dialog.Filter = L.T("Tekstbestanden (*.txt)|*.txt|Alle bestanden (*.*)|*.*", "Text files (*.txt)|*.txt|All files (*.*)|*.*");
                         dialog.DefaultExt = "txt";
                         dialog.AddExtension = true;
                         dialog.InitialDirectory = folder;
@@ -679,11 +739,11 @@ namespace ElevenLabsMusicGenerator
                     }
                 }
                 File.WriteAllText(currentPromptPath, promptTextBox.Text.TrimEnd() + Environment.NewLine, new UTF8Encoding(false));
-                SetStatus("Saved prompt: " + Path.GetFileName(currentPromptPath));
+                SetStatus(L.T("Prompt opgeslagen: ", "Saved prompt: ") + Path.GetFileName(currentPromptPath));
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "The prompt could not be saved." + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, L.T("De prompt kon niet worden opgeslagen.", "The prompt could not be saved.") + Environment.NewLine + Environment.NewLine + ex.Message, Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -707,7 +767,7 @@ namespace ElevenLabsMusicGenerator
             var folder = Environment.ExpandEnvironmentVariables((settings.DefaultOutputFolder ?? string.Empty).Trim().Trim('"'));
             if (!Directory.Exists(folder))
             {
-                MessageBox.Show(this, "The output folder does not exist.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("De uitvoermap bestaat niet.", "The output folder does not exist."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true });
@@ -724,7 +784,7 @@ namespace ElevenLabsMusicGenerator
                 SetGenerationMode();
                 variationsNumeric.Value = settings.DefaultVariations;
                 instrumentalCheckBox.Checked = settings.DefaultInstrumental;
-                SetStatus("Preferences saved.");
+                SetStatus(L.T("Voorkeuren bewaard.", "Preferences saved."));
                 CheckBalance();
             }
         }
@@ -734,7 +794,7 @@ namespace ElevenLabsMusicGenerator
             if (generationRunning) return;
             if (settings.ModelId == "music_v1" || settings.ModelId == MusicGenerationRequest.SoundEffectsModel)
             {
-                MessageBox.Show(this, "Composition plans require Music v2 or v2.5. Choose a music model in the main window first.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("Een compositieplan werkt alleen met Muziek v2 of v2.5. Kies eerst een muziekmodel in het hoofdvenster.", "Composition plans require Music v2 or v2.5. Choose a music model in the main window first."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 modelComboBox.Focus();
                 return;
             }
@@ -745,7 +805,7 @@ namespace ElevenLabsMusicGenerator
                 usePlanCheckBox.Checked = true;
                 SavePlanDraftNonFatal();
                 SetPlanMode();
-                SetStatus("Composition plan ready: " + activePlan.Sections.Count + " sections, " + (activePlan.TotalMilliseconds / 1000m).ToString("0.###") + " seconds.");
+                SetStatus(L.T("Compositieplan klaar: ", "Composition plan ready: ") + activePlan.Sections.Count + L.T(" delen, ", " sections, ") + (activePlan.TotalMilliseconds / 1000m).ToString("0.###") + L.T(" seconden.", " seconds."));
             }
         }
 
@@ -780,7 +840,7 @@ namespace ElevenLabsMusicGenerator
             instrumentalCheckBox.Enabled = !effects && !usePlanCheckBox.Checked && !generationRunning;
             usePlanCheckBox.Enabled = !effects && !generationRunning;
             editPlanButton.Enabled = !effects && !generationRunning;
-            usePlanCheckBox.AccessibleDescription = activePlan == null ? "No composition plan loaded" : activePlan.Sections.Count + " sections, " + (activePlan.TotalMilliseconds / 1000m).ToString("0.###") + " seconds";
+            usePlanCheckBox.AccessibleDescription = activePlan == null ? L.T("Er is geen compositieplan geladen", "No composition plan loaded") : activePlan.Sections.Count + L.T(" delen, ", " sections, ") + (activePlan.TotalMilliseconds / 1000m).ToString("0.###") + L.T(" seconden", " seconds");
         }
 
         private void SetGenerationMode()
@@ -790,9 +850,9 @@ namespace ElevenLabsMusicGenerator
             finally { updatingModelSelection = false; }
             var effects = settings.ModelId == MusicGenerationRequest.SoundEffectsModel;
             var switchingMode = displayedEffectsMode.HasValue && displayedEffectsMode.Value != effects;
-            promptLabel.Text = effects ? "Sound effects pro&mpt:" : "&Music prompt:";
-            promptTextBox.AccessibleName = effects ? "Sound effects prompt" : "Music prompt";
-            promptTextBox.AccessibleDescription = effects ? "Describe the sound effect to generate." : "Describe the music to generate.";
+            promptLabel.Text = effects ? L.T("Beschrijving van het geluidseffect (pro&mpt):", "Sound effects pro&mpt:") : L.T("&Muziekbeschrijving (prompt):", "&Music prompt:");
+            promptTextBox.AccessibleName = effects ? L.T("Beschrijving van het geluidseffect", "Sound effects prompt") : L.T("Muziekbeschrijving", "Music prompt");
+            promptTextBox.AccessibleDescription = effects ? L.T("Beschrijf het geluidseffect dat je wilt maken.", "Describe the sound effect to generate.") : L.T("Beschrijf de muziek die je wilt maken.", "Describe the music to generate.");
             if (effects)
             {
                 if (switchingMode && soundEffectPrompt != null)
@@ -838,10 +898,10 @@ namespace ElevenLabsMusicGenerator
         private void UpdatePromptCount()
         {
             var limit = settings.ModelId == MusicGenerationRequest.SoundEffectsModel ? MusicGenerationRequest.SoundEffectsPromptLimit : 4100;
-            characterCountLabel.Text = promptTextBox.TextLength + " of " + limit + " characters; " + Math.Max(0, limit - promptTextBox.TextLength) + " remaining";
+            characterCountLabel.Text = promptTextBox.TextLength + L.T(" van ", " of ") + limit + L.T(" tekens; ", " characters; ") + Math.Max(0, limit - promptTextBox.TextLength) + L.T(" over", " remaining");
             promptCountStatus.Text = characterCountLabel.Text;
             promptTextBox.AccessibleDescription = null;
-            Text = AccessibleName = Program.DisplayName + " - " + promptTextBox.TextLength + " / " + limit + " characters";
+            Text = AccessibleName = Program.DisplayName + " - " + promptTextBox.TextLength + " / " + limit + L.T(" tekens", " characters");
         }
         private string HelpDescription(Control control) { return control == promptTextBox ? ContextHelp.Description(control) + "\r\n\r\n" + characterCountLabel.Text + "." : ContextHelp.Description(control); }
 
@@ -867,12 +927,12 @@ namespace ElevenLabsMusicGenerator
             try
             {
                 settings.Save();
-                SetStatus(modelComboBox.Text + " selected." + (formatChanged ? " Output changed to MP3 44.1 kHz, 192 kbps." : string.Empty));
+                SetStatus(modelComboBox.Text + L.T(" gekozen.", " selected.") + (formatChanged ? L.T(" Het formaat is nu MP3, 44,1 kHz, 192 kbps.", " Output changed to MP3 44.1 kHz, 192 kbps.") : string.Empty));
             }
             catch (Exception ex)
             {
                 AppLog.WriteException("Could not save model selection", ex);
-                SetStatus("Model changed for this session, but the selection could not be saved: " + ex.Message);
+                SetStatus(L.T("Het model is voor nu veranderd, maar de keuze kon niet worden bewaard: ", "Model changed for this session, but the selection could not be saved: ") + ex.Message);
             }
         }
 
@@ -880,7 +940,7 @@ namespace ElevenLabsMusicGenerator
         {
             if (!File.Exists(AppPaths.ManualPath))
             {
-                MessageBox.Show(this, "Manual.html was not found beside the application.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, L.T("De handleiding (Handleiding.html) staat niet naast het programma.", "Manual.html was not found beside the application."), Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             Process.Start(new ProcessStartInfo { FileName = AppPaths.ManualPath, UseShellExecute = true });
@@ -908,11 +968,11 @@ namespace ElevenLabsMusicGenerator
             var key = AppPaths.LoadApiKey();
             if (key.Length == 0)
             {
-                balanceTextBox.Text = "Save an ElevenLabs API key in Preferences before checking the balance.";
+                balanceTextBox.Text = L.T("Zet eerst je API-sleutel van ElevenLabs in Voorkeuren.", "Save an ElevenLabs API key in Preferences before checking the balance.");
                 return;
             }
             checkingBalance = true;
-            balanceTextBox.Text = "Checking ElevenLabs subscription balance...";
+            balanceTextBox.Text = L.T("Tegoed bij ElevenLabs bekijken...", "Checking ElevenLabs subscription balance...");
             try
             {
                 var balance = await Task.Run(delegate { return new ElevenLabsMusicClient(key).GetSubscriptionBalance(); });
@@ -923,8 +983,8 @@ namespace ElevenLabsMusicGenerator
             {
                 AppLog.WriteException("Could not check subscription balance", ex);
                 if (IsDisposed || Disposing) return;
-                var message = "Could not check the subscription balance: " + ex.Message + Environment.NewLine +
-                    "A restricted API key may not permit subscription access. Generation is unaffected.";
+                var message = L.T("Het tegoed kon niet worden bekeken: ", "Could not check the subscription balance: ") + ex.Message + Environment.NewLine +
+                    L.T("Misschien mag je API-sleutel het tegoed niet lezen (toegang user_read). Genereren werkt gewoon.", "A restricted API key may not permit subscription access. Generation is unaffected.");
                 balanceTextBox.Text = message;
             }
             finally
@@ -940,7 +1000,8 @@ namespace ElevenLabsMusicGenerator
 
         private void ShowAbout()
         {
-            MessageBox.Show(this, Program.AppName + " " + Program.Version + Environment.NewLine + Environment.NewLine + "Portable accessible Windows utility for ElevenLabs music and sound effects generation." + Environment.NewLine + Environment.NewLine + "Created by Andre Louis.", "About " + Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Program.AppName + " " + Program.Version + Environment.NewLine + Environment.NewLine + L.T("Toegankelijk draagbaar Windows-programma om met ElevenLabs muziek, geluidseffecten en spraak te maken.", "Portable accessible Windows utility for ElevenLabs music and sound effects generation.") + Environment.NewLine + Environment.NewLine + L.T("Gemaakt door Andre Louis (muziek en geluidseffecten, MIT-licentie)." + Environment.NewLine + "Spraak en stemmen naar het idee van ElevenLabs Media Suite (MIT-licentie)." + Environment.NewLine + "Nederlandse versie: Jaap Wortel.",
+                "Created by Andre Louis (music and sound effects, MIT license)." + Environment.NewLine + "Speech and voices based on ElevenLabs Media Suite (MIT license)." + Environment.NewLine + "Dutch version: Jaap Wortel."), L.T("Over ", "About ") + Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private sealed class AudioResult
@@ -954,7 +1015,7 @@ namespace ElevenLabsMusicGenerator
         {
             if (generationRunning)
             {
-                if (MessageBox.Show(this, "Generation is still running. Cancel it?", Program.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) CancelGeneration();
+                if (MessageBox.Show(this, L.T("Er wordt nog gegenereerd. Wil je dat annuleren?", "Generation is still running. Cancel it?"), Program.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) CancelGeneration();
                 e.Cancel = true;
                 return;
             }
@@ -983,7 +1044,7 @@ namespace ElevenLabsMusicGenerator
             label.Click += delegate { focusTarget.Focus(); };
             panel.Controls.Add(label, 0, 0);
             panel.Controls.Add(textBox, 1, 0);
-            if (buttonText != null) panel.Controls.Add(NewButton(buttonText, "Browse for a folder"), 2, 0);
+            if (buttonText != null) panel.Controls.Add(NewButton(buttonText, L.T("Kies een map", "Browse for a folder")), 2, 0);
             return panel;
         }
 

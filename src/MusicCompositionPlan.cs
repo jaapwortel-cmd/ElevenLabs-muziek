@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace ElevenLabsMusicGenerator
 
         public MusicSection()
         {
-            Name = "New section";
+            Name = L.T("Nieuw deel", "New section");
             Body = string.Empty;
             DurationSeconds = 15;
             PositiveStyles = string.Empty;
@@ -28,7 +28,7 @@ namespace ElevenLabsMusicGenerator
 
         public override string ToString()
         {
-            return Name + ", " + (DurationMilliseconds / 1000m).ToString("0.###") + " seconds";
+            return Name + ", " + (DurationMilliseconds / 1000m).ToString("0.###") + L.T(" seconden", " seconds");
         }
 
         internal Dictionary<string, object> ToPayload()
@@ -63,22 +63,22 @@ namespace ElevenLabsMusicGenerator
 
         public void Validate()
         {
-            if (Sections.Count < 1 || Sections.Count > 30) throw new InvalidDataException("A composition plan needs 1 to 30 sections.");
+            if (Sections.Count < 1 || Sections.Count > 30) throw new InvalidDataException(L.T("Een compositieplan heeft 1 tot 30 delen nodig.", "A composition plan needs 1 to 30 sections."));
             foreach (var section in Sections)
             {
                 if (string.IsNullOrWhiteSpace(section.Name) || section.Name.Contains("[") || section.Name.Contains("]") || section.Name.Contains("\n"))
-                    throw new InvalidDataException("Each section needs a name without brackets or line breaks.");
+                    throw new InvalidDataException(L.T("Elk deel heeft een naam nodig, zonder haken en zonder nieuwe regel.", "Each section needs a name without brackets or line breaks."));
                 if (section.DurationMilliseconds < 3000 || section.DurationMilliseconds > 120000)
-                    throw new InvalidDataException("Each section must last between 3 and 120 seconds.");
+                    throw new InvalidDataException(L.T("Elk deel moet 3 tot 120 seconden duren.", "Each section must last between 3 and 120 seconds."));
                 if (MusicSection.SplitStyles(section.PositiveStyles).Length > 50 || MusicSection.SplitStyles(section.NegativeStyles).Length > 50)
-                    throw new InvalidDataException("A section cannot contain more than 50 included or excluded styles.");
+                    throw new InvalidDataException(L.T("Een deel kan niet meer dan 50 stijlen hebben.", "A section cannot contain more than 50 included or excluded styles."));
                 if (section.ContextAdherence != "low" && section.ContextAdherence != "medium" && section.ContextAdherence != "high")
-                    throw new InvalidDataException("Section context adherence must be low, medium or high.");
+                    throw new InvalidDataException(L.T("De aansluiting moet laag, gemiddeld of hoog zijn.", "Section context adherence must be low, medium or high."));
                 if (section.ToPayload()["text"].ToString().Length > 6000)
-                    throw new InvalidDataException("Section text is too long. Keep it below 6,000 characters.");
+                    throw new InvalidDataException(L.T("De tekst van een deel is te lang. Houd het onder 6000 tekens.", "Section text is too long. Keep it below 6,000 characters."));
             }
             if (TotalMilliseconds < 3000 || TotalMilliseconds > 600000)
-                throw new InvalidDataException("The complete plan must last between 3 seconds and 10 minutes.");
+                throw new InvalidDataException(L.T("Het hele plan moet tussen 3 seconden en 10 minuten duren.", "The complete plan must last between 3 seconds and 10 minutes."));
         }
 
         public Dictionary<string, object> ToPayload()
@@ -100,17 +100,17 @@ namespace ElevenLabsMusicGenerator
                 root = nestedPlan as Dictionary<string, object>;
             object rawChunks;
             var chunks = root != null && root.TryGetValue("chunks", out rawChunks) ? rawChunks as object[] : null;
-            if (chunks == null) throw new InvalidDataException("This JSON file does not contain a reusable v2 or v2.5 composition plan.");
+            if (chunks == null) throw new InvalidDataException(L.T("Dit JSON-bestand bevat geen bruikbaar compositieplan voor v2 of v2.5.", "This JSON file does not contain a reusable v2 or v2.5 composition plan."));
             var plan = new MusicCompositionPlan();
             foreach (var rawChunk in chunks)
             {
                 var chunk = rawChunk as Dictionary<string, object>;
                 if (chunk == null || !chunk.ContainsKey("text") || !chunk.ContainsKey("duration_ms"))
-                    throw new InvalidDataException("The plan contains an unsupported audio-reference section.");
+                    throw new InvalidDataException(L.T("Het plan bevat een deel met een geluidsvoorbeeld; dat kan niet.", "The plan contains an unsupported audio-reference section."));
                 var text = Convert.ToString(chunk["text"]) ?? string.Empty;
                 var closing = text.IndexOf(']');
                 if (!text.StartsWith("[", StringComparison.Ordinal) || closing < 2)
-                    throw new InvalidDataException("A section heading must begin with [Name].");
+                    throw new InvalidDataException(L.T("De kop van een deel moet beginnen met [Naam].", "A section heading must begin with [Name]."));
                 plan.Sections.Add(new MusicSection
                 {
                     Name = text.Substring(1, closing - 1),

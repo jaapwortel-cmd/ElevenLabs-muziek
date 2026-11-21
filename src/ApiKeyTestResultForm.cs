@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,8 +6,9 @@ namespace ElevenLabsMusicGenerator
 {
     internal sealed class ApiKeyTestResultForm : Form
     {
-        public ApiKeyTestResultForm(string result, string title = "API key test result", Action openManual = null)
+        public ApiKeyTestResultForm(string result, string title = null, Action openManual = null)
         {
+            if (title == null) title = L.T("Uitkomst van de test", "API key test result");
             Text = title;
             AccessibleName = Text;
             StartPosition = FormStartPosition.CenterParent;
@@ -31,12 +32,12 @@ namespace ElevenLabsMusicGenerator
                 AccessibleName = title,
                 Text = result
             };
-            var closeButton = new Button { Text = "&Close", AutoSize = true, DialogResult = DialogResult.OK, TabIndex = 1 };
+            var closeButton = new Button { Text = L.T("&Sluiten", "&Close"), AutoSize = true, DialogResult = DialogResult.OK, TabIndex = 1 };
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.RightToLeft };
             buttons.Controls.Add(closeButton);
             if (openManual != null)
             {
-                var manualButton = new Button { Text = "Open &manual", AutoSize = true, TabIndex = 0 };
+                var manualButton = new Button { Text = L.T("&Handleiding openen", "Open &manual"), AutoSize = true, TabIndex = 0 };
                 manualButton.Click += delegate { openManual(); };
                 buttons.Controls.Add(manualButton);
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +13,7 @@ namespace ElevenLabsMusicGenerator
 {
     internal static class ProgramUpdater
     {
-        private static readonly string[] ProgramFiles = { "ElevenLabsMusicGenerator.exe", "Manual.html", "LICENSE.txt" };
+        private static readonly string[] ProgramFiles = { "ElevenLabsMusicGenerator.exe", "Manual.html", "Handleiding.html", "LICENSE.txt" };
 
         public static bool IsApplyUpdateCommand(string[] args)
         {
@@ -32,13 +32,13 @@ namespace ElevenLabsMusicGenerator
                 var waitPid = int.Parse(Required(options, "--update-wait-pid"));
                 WaitForProcess(waitPid);
                 var targetRoot = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar);
-                if (!Directory.Exists(targetRoot)) throw new InvalidOperationException("The application folder no longer exists.");
+                if (!Directory.Exists(targetRoot)) throw new InvalidOperationException(L.T("De programmamap bestaat niet meer.", "The application folder no longer exists."));
 
                 var packagePath = Path.Combine(updaterRoot, "update.zip");
                 var signaturePath = Path.Combine(updaterRoot, "update.zip.sig");
                 DownloadFile(Required(options, "--update-url"), packagePath);
                 DownloadFile(Required(options, "--signature-url"), signaturePath);
-                if (!UpdateService.VerifyPackageSignature(packagePath, signaturePath)) throw new InvalidOperationException("The update signature is missing or invalid. No files were changed.");
+                if (!UpdateService.VerifyPackageSignature(packagePath, signaturePath)) throw new InvalidOperationException(L.T("De handtekening van de update ontbreekt of klopt niet. Er is niets veranderd.", "The update signature is missing or invalid. No files were changed."));
 
                 var stage = Path.Combine(updaterRoot, "stage");
                 Directory.CreateDirectory(stage);
@@ -78,7 +78,7 @@ namespace ElevenLabsMusicGenerator
 #if PRIVATE_TEST
                 if (SuppressRestartForTest) throw;
 #endif
-                MessageBox.Show("The update could not be installed." + Environment.NewLine + Environment.NewLine + ex.Message + Environment.NewLine + Environment.NewLine + "The previous program files were retained or restored.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(L.T("De update kon niet worden geinstalleerd.", "The update could not be installed.") + Environment.NewLine + Environment.NewLine + ex.Message + Environment.NewLine + Environment.NewLine + L.T("De vorige programmabestanden zijn bewaard of teruggezet.", "The previous program files were retained or restored."), L.T("Update mislukt", "Update failed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -118,7 +118,7 @@ namespace ElevenLabsMusicGenerator
             {
                 using (var process = Process.GetProcessById(processId))
                 {
-                    if (!process.WaitForExit(30000)) throw new TimeoutException("The previous application process did not exit within 30 seconds.");
+                    if (!process.WaitForExit(30000)) throw new TimeoutException(L.T("Het programma was na 30 seconden nog niet gesloten.", "The previous application process did not exit within 30 seconds."));
                 }
             }
             catch (ArgumentException)
@@ -144,7 +144,7 @@ namespace ElevenLabsMusicGenerator
                 foreach (var entry in archive.Entries)
                 {
                     var target = Path.GetFullPath(Path.Combine(destination, entry.FullName.Replace('/', Path.DirectorySeparatorChar)));
-                    if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("The update contains an unsafe path.");
+                    if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(L.T("De update bevat een onveilig pad.", "The update contains an unsafe path."));
                     if (entry.FullName.EndsWith("/", StringComparison.Ordinal) || entry.FullName.EndsWith("\\", StringComparison.Ordinal))
                     {
                         Directory.CreateDirectory(target);
@@ -162,14 +162,14 @@ namespace ElevenLabsMusicGenerator
         {
             foreach (var name in ProgramFiles)
             {
-                if (!File.Exists(Path.Combine(stage, name))) throw new InvalidDataException("The signed package is missing " + name + ".");
+                if (!File.Exists(Path.Combine(stage, name))) throw new InvalidDataException(L.T("In het pakket ontbreekt ", "The signed package is missing ") + name + ".");
             }
             Version expected;
             Version actual;
             var versionText = FileVersionInfo.GetVersionInfo(Path.Combine(stage, ProgramFiles[0])).FileVersion;
             if (!Version.TryParse(expectedVersion, out expected) || !Version.TryParse(versionText, out actual) || actual.Major != expected.Major || actual.Minor != expected.Minor || actual.Build != expected.Build)
             {
-                throw new InvalidDataException("The signed package version does not match the release version.");
+                throw new InvalidDataException(L.T("De versie in het pakket klopt niet met de versie van de update.", "The signed package version does not match the release version."));
             }
         }
 

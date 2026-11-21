@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -19,7 +19,7 @@ namespace ElevenLabsMusicGenerator
         public long Bytes;
         public DateTime ModifiedUtc;
         public double Seconds;
-        public override string ToString() { return System.IO.Path.GetFileName(Path) + " - " + Seconds.ToString("0.0") + " seconds"; }
+        public override string ToString() { return System.IO.Path.GetFileName(Path) + " - " + Seconds.ToString("0.0") + L.T(" seconden", " seconds"); }
 
         public static SoundtrackVideo Read(string path)
         {
@@ -33,7 +33,7 @@ namespace ElevenLabsMusicGenerator
                 var duration = item.GetType().InvokeMember("ExtendedProperty", BindingFlags.InvokeMethod, null, item, new object[] { "System.Media.Duration" });
                 var width = item.GetType().InvokeMember("ExtendedProperty", BindingFlags.InvokeMethod, null, item, new object[] { "System.Video.FrameWidth" });
                 var seconds = Convert.ToDouble(duration, CultureInfo.InvariantCulture) / TimeSpan.TicksPerSecond;
-                if (Convert.ToDouble(width, CultureInfo.InvariantCulture) <= 0 || seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds)) throw new InvalidDataException("The video duration or picture could not be read. Try an MP4 or MOV file supported by Windows.");
+                if (Convert.ToDouble(width, CultureInfo.InvariantCulture) <= 0 || seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds)) throw new InvalidDataException(L.T("De lengte of het beeld van de video kon niet worden gelezen. Probeer een MP4- of MOV-bestand dat Windows kan afspelen.", "The video duration or picture could not be read. Try an MP4 or MOV file supported by Windows."));
                 return new SoundtrackVideo { Path = info.FullName, Bytes = info.Length, ModifiedUtc = info.LastWriteTimeUtc, Seconds = seconds };
             }
             finally
@@ -55,20 +55,20 @@ namespace ElevenLabsMusicGenerator
 
         public void Validate()
         {
-            if (Videos.Count < 1 || Videos.Count > MaximumVideos) throw new InvalidDataException("Choose from 1 to 10 videos.");
-            if (Description.Length > 4100) throw new InvalidDataException("The soundtrack description must not exceed 4100 characters.");
-            if (StyleTags.Length > 10) throw new InvalidDataException("Enter no more than 10 style tags, one per line.");
-            if (ModelId != "music_v1" && ModelId != "music_v2" && ModelId != "music_v2_5") throw new InvalidDataException("Choose a Music model for the soundtrack.");
-            if (AppSettings.NormalizeOutputFormat(OutputFormat) != OutputFormat) throw new InvalidDataException("Choose a supported soundtrack output format.");
+            if (Videos.Count < 1 || Videos.Count > MaximumVideos) throw new InvalidDataException(L.T("Kies 1 tot 10 video's.", "Choose from 1 to 10 videos."));
+            if (Description.Length > 4100) throw new InvalidDataException(L.T("De beschrijving mag hooguit 4100 tekens hebben.", "The soundtrack description must not exceed 4100 characters."));
+            if (StyleTags.Length > 10) throw new InvalidDataException(L.T("Typ hooguit 10 stijlen, een per regel.", "Enter no more than 10 style tags, one per line."));
+            if (ModelId != "music_v1" && ModelId != "music_v2" && ModelId != "music_v2_5") throw new InvalidDataException(L.T("Kies een muziekmodel.", "Choose a Music model for the soundtrack."));
+            if (AppSettings.NormalizeOutputFormat(OutputFormat) != OutputFormat) throw new InvalidDataException(L.T("Kies een formaat dat werkt.", "Choose a supported soundtrack output format."));
             long bytes = 0; double seconds = 0;
             foreach (var video in Videos)
             {
                 var file = new FileInfo(video.Path);
-                if (!file.Exists || file.Length != video.Bytes || file.LastWriteTimeUtc != video.ModifiedUtc) throw new InvalidDataException("A selected video changed or is unavailable. Remove it and add it again.");
-                if (video.Bytes <= 0 || video.Seconds <= 0 || double.IsNaN(video.Seconds) || double.IsInfinity(video.Seconds)) throw new InvalidDataException("Each video needs a readable, positive duration and size.");
+                if (!file.Exists || file.Length != video.Bytes || file.LastWriteTimeUtc != video.ModifiedUtc) throw new InvalidDataException(L.T("Een gekozen video is veranderd of niet meer te vinden. Haal hem weg en voeg hem opnieuw toe.", "A selected video changed or is unavailable. Remove it and add it again."));
+                if (video.Bytes <= 0 || video.Seconds <= 0 || double.IsNaN(video.Seconds) || double.IsInfinity(video.Seconds)) throw new InvalidDataException(L.T("Van elke video moeten de lengte en grootte leesbaar zijn.", "Each video needs a readable, positive duration and size."));
                 bytes = checked(bytes + video.Bytes); seconds += video.Seconds;
             }
-            if (bytes > MaximumUploadBytes || seconds > MaximumSeconds) throw new InvalidDataException("The videos together must not exceed 200 MB or 10 minutes.");
+            if (bytes > MaximumUploadBytes || seconds > MaximumSeconds) throw new InvalidDataException(L.T("Samen mogen de video's niet groter zijn dan 200 MB of langer dan 10 minuten.", "The videos together must not exceed 200 MB or 10 minutes."));
         }
 
         internal IEnumerable<KeyValuePair<string, string>> Fields()
@@ -138,7 +138,7 @@ namespace ElevenLabsMusicGenerator
                             token.ThrowIfCancellationRequested(); upload.Write(part.Key, 0, part.Key.Length);
                             if (part.Value == null) continue;
                             using (var file = File.Open(part.Value.Path, FileMode.Open, FileAccess.Read, FileShare.Read))
-                                if (CopyLimited(file, upload, part.Value.Bytes, token, count => report(new SoundtrackProgress(SoundtrackStage.Uploading, uploaded + count, uploadBytes))) != part.Value.Bytes) throw new InvalidDataException("A video changed while uploading. Add it again before retrying.");
+                                if (CopyLimited(file, upload, part.Value.Bytes, token, count => report(new SoundtrackProgress(SoundtrackStage.Uploading, uploaded + count, uploadBytes))) != part.Value.Bytes) throw new InvalidDataException(L.T("Een video veranderde tijdens het opsturen. Voeg hem opnieuw toe en probeer het nog eens.", "A video changed while uploading. Add it again before retrying."));
                             uploaded += part.Value.Bytes;
                             upload.WriteByte(13); upload.WriteByte(10);
                         }
@@ -148,7 +148,7 @@ namespace ElevenLabsMusicGenerator
                     using (var response = (HttpWebResponse)request.GetResponse())
                     {
                         var type = response.ContentType ?? "";
-                        if (type.StartsWith("text/", StringComparison.OrdinalIgnoreCase) || type.Contains("json")) throw new InvalidDataException("ElevenLabs returned a document instead of soundtrack audio.");
+                        if (type.StartsWith("text/", StringComparison.OrdinalIgnoreCase) || type.Contains("json")) throw new InvalidDataException(L.T("ElevenLabs stuurde een document in plaats van geluid.", "ElevenLabs returned a document instead of soundtrack audio."));
                         report(new SoundtrackProgress(SoundtrackStage.Downloading, 0, response.ContentLength));
                         using (var source = response.GetResponseStream())
                         using (var target = File.Create(download)) CopyLimited(source, target, MaximumSoundtrackResponseBytes, token, count => report(new SoundtrackProgress(SoundtrackStage.Downloading, count, response.ContentLength)));
@@ -177,7 +177,7 @@ namespace ElevenLabsMusicGenerator
             while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
             {
                 token.ThrowIfCancellationRequested(); count += read;
-                if (count > limit) throw new InvalidDataException("The soundtrack response or upload exceeded its size limit.");
+                if (count > limit) throw new InvalidDataException(L.T("Het antwoord of het opsturen werd te groot.", "The soundtrack response or upload exceeded its size limit."));
                 target.Write(buffer, 0, read);
                 if (progress != null && updateClock.ElapsedMilliseconds >= 1000) { progress(count); updateClock.Restart(); }
             }
@@ -192,17 +192,17 @@ namespace ElevenLabsMusicGenerator
             {
                 using (var archive = ZipFile.OpenRead(download))
                 {
-                    if (archive.Entries.Count > 32 || archive.Entries.Sum(x => x.Length) > MaximumSoundtrackResponseBytes) throw new InvalidDataException("The soundtrack archive is too large.");
+                    if (archive.Entries.Count > 32 || archive.Entries.Sum(x => x.Length) > MaximumSoundtrackResponseBytes) throw new InvalidDataException(L.T("Het pakket met de muziek is te groot.", "The soundtrack archive is too large."));
                     foreach (var entry in archive.Entries)
                     {
                         var segments = entry.FullName.Replace('\\', '/').Split('/');
-                        if (segments.Any(x => x == "..") || entry.FullName.StartsWith("/") || entry.FullName.Contains(":") || ((entry.ExternalAttributes >> 16) & 0xF000) == 0xA000) throw new InvalidDataException("The soundtrack archive contains an unsafe path.");
+                        if (segments.Any(x => x == "..") || entry.FullName.StartsWith("/") || entry.FullName.Contains(":") || ((entry.ExternalAttributes >> 16) & 0xF000) == 0xA000) throw new InvalidDataException(L.T("Het pakket met de muziek bevat een onveilig pad.", "The soundtrack archive contains an unsafe path."));
                         if (entry.Name.Length == 0) continue;
                         var extension = System.IO.Path.GetExtension(entry.Name).ToLowerInvariant();
                         if (extension == ".json" || extension == ".txt") continue;
-                        if (extension != ".mp3" && extension != ".wav" && extension != ".pcm") throw new InvalidDataException("The soundtrack archive contains an unsupported file.");
+                        if (extension != ".mp3" && extension != ".wav" && extension != ".pcm") throw new InvalidDataException(L.T("Het pakket met de muziek bevat een onbekend soort bestand.", "The soundtrack archive contains an unsupported file."));
                         var name = FileNameHelper.SafeStem(System.IO.Path.GetFileNameWithoutExtension(entry.Name), "") + (extension == ".pcm" ? ".wav" : extension);
-                        if (paths.Contains(name, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("The soundtrack archive contains duplicate track names.");
+                        if (paths.Contains(name, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException(L.T("Het pakket met de muziek bevat dubbele namen.", "The soundtrack archive contains duplicate track names."));
                         var destination = System.IO.Path.Combine(folder, name);
                         var raw = destination + ".raw";
                         using (var source = entry.Open()) using (var target = File.Create(raw)) CopyLimited(source, target, Math.Min(entry.Length, MaximumSoundtrackResponseBytes), token);
@@ -216,7 +216,7 @@ namespace ElevenLabsMusicGenerator
                 var name = "Soundtrack." + (format.StartsWith("pcm_") ? "wav" : "mp3");
                 SaveAudio(download, System.IO.Path.Combine(folder, name), format, token); paths.Add(name);
             }
-            if (paths.Count == 0) throw new InvalidDataException("ElevenLabs returned no playable soundtrack tracks.");
+            if (paths.Count == 0) throw new InvalidDataException(L.T("ElevenLabs stuurde geen geluid dat kan worden afgespeeld.", "ElevenLabs returned no playable soundtrack tracks."));
             return paths.ToArray();
         }
 
@@ -225,17 +225,17 @@ namespace ElevenLabsMusicGenerator
             token.ThrowIfCancellationRequested();
             var head = new byte[12]; int read;
             using (var stream = File.OpenRead(source)) read = stream.Read(head, 0, head.Length);
-            if (read < 4) throw new InvalidDataException("ElevenLabs returned an empty or incomplete soundtrack.");
+            if (read < 4) throw new InvalidDataException(L.T("ElevenLabs stuurde lege of onvolledige muziek.", "ElevenLabs returned an empty or incomplete soundtrack."));
             bool wave = Encoding.ASCII.GetString(head, 0, 4) == "RIFF" && read == 12 && Encoding.ASCII.GetString(head, 8, 4) == "WAVE";
             bool mp3 = Encoding.ASCII.GetString(head, 0, 3) == "ID3" || head[0] == 255 && (head[1] & 224) == 224;
             if (format.StartsWith("pcm_") && !wave)
             {
-                if (new FileInfo(source).Length % 4 != 0) throw new InvalidDataException("The returned PCM soundtrack is incomplete.");
+                if (new FileInfo(source).Length % 4 != 0) throw new InvalidDataException(L.T("De PCM-muziek is onvolledig.", "The returned PCM soundtrack is incomplete."));
                 WaveFileWriter.WrapPcmFile(source, target, PcmSampleRate(format));
             }
             else
             {
-                if (!wave && !mp3) throw new InvalidDataException("ElevenLabs did not return supported audio.");
+                if (!wave && !mp3) throw new InvalidDataException(L.T("ElevenLabs stuurde geen geluid dat dit programma kent.", "ElevenLabs did not return supported audio."));
                 File.Copy(source, target, false);
             }
         }

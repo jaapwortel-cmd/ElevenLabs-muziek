@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,9 +36,9 @@ namespace ElevenLabsMusicGenerator
                 var data = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(path, Encoding.UTF8));
                 if (data == null || Convert.ToString(data["sourceHash"]) != SourceHash(request) ||
                     Convert.ToString(data["model"]) != request.ModelId || Convert.ToString(data["format"]) != request.OutputFormat)
-                    throw new InvalidDataException("The generated-title record belongs to a different request. Choose a base filename or another output folder.");
+                    throw new InvalidDataException(L.T("Het bestand met titels hoort bij een ander verzoek. Kies een basisbestandsnaam of een andere uitvoermap.", "The generated-title record belongs to a different request. Choose a base filename or another output folder."));
                 var outputs = data["outputs"] as Dictionary<string, object>;
-                if (outputs == null) throw new InvalidDataException("The generated-title record has no outputs.");
+                if (outputs == null) throw new InvalidDataException(L.T("Het bestand met titels is leeg.", "The generated-title record has no outputs."));
                 var result = new Dictionary<string, string>();
                 foreach (var pair in outputs)
                 {
@@ -46,13 +46,13 @@ namespace ElevenLabsMusicGenerator
                     var name = pair.Value as string;
                     if (!int.TryParse(pair.Key, out index) || index < 1 || index > 10 || string.IsNullOrWhiteSpace(name) ||
                         Path.GetFileName(name) != name || !name.EndsWith(Extension(request), StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidDataException("The generated-title record contains an unsafe output path.");
+                        throw new InvalidDataException(L.T("Het bestand met titels bevat een onveilig pad.", "The generated-title record contains an unsafe output path."));
                     result.Add(pair.Key, name);
                 }
                 return result;
             }
             catch (InvalidDataException) { throw; }
-            catch (Exception ex) { throw new InvalidDataException("The generated-title record could not be read. No music was regenerated.", ex); }
+            catch (Exception ex) { throw new InvalidDataException(L.T("Het bestand met titels kon niet worden gelezen. Er is niets opnieuw gemaakt.", "The generated-title record could not be read. No music was regenerated."), ex); }
         }
 
         public static string ResolvedOutputPath(MusicGenerationRequest request, int index)
@@ -76,7 +76,7 @@ namespace ElevenLabsMusicGenerator
                 if (!File.Exists(path) && !outputs.Where(pair => pair.Key != index.ToString()).Any(pair => string.Equals(pair.Value, name, StringComparison.OrdinalIgnoreCase)))
                     return path;
             }
-            throw new IOException("Could not find a free filename for the returned song title.");
+            throw new IOException(L.T("Er is geen vrije bestandsnaam voor de titel van het nummer.", "Could not find a free filename for the returned song title."));
         }
 
         public static void Reserve(MusicGenerationRequest request, int index, string outputPath)
@@ -84,7 +84,7 @@ namespace ElevenLabsMusicGenerator
             if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(outputPath)).TrimEnd(Path.DirectorySeparatorChar),
                 Path.GetFullPath(request.OutputFolder).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(outputPath) != Path.GetFileName(Path.GetFullPath(outputPath)))
-                throw new InvalidDataException("The generated-title filename is outside the output folder.");
+                throw new InvalidDataException(L.T("De bestandsnaam valt buiten de uitvoermap.", "The generated-title filename is outside the output folder."));
             var outputs = Read(request);
             outputs[index.ToString()] = Path.GetFileName(outputPath);
             var path = ManifestPath(request);

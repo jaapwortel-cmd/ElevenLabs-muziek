@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,12 +19,12 @@ namespace ElevenLabsMusicGenerator
             {
                 var promptPath = request.PromptPath();
                 if (!File.Exists(promptPath) || !MatchesSavedSource(promptPath, request.SourceText()))
-                    throw new InvalidDataException("Existing tracks cannot be resumed because their saved prompt or plan does not match. Choose a new base filename to start a separate batch.");
+                    throw new InvalidDataException(L.T("Verdergaan kan niet, want de bewaarde prompt of het plan klopt niet. Kies een nieuwe basisbestandsnaam voor een nieuwe reeks.", "Existing tracks cannot be resumed because their saved prompt or plan does not match. Choose a new base filename to start a separate batch."));
 
                 foreach (var index in existing)
                 {
                     if (!MatchesCompletedAudio(paths[index], request))
-                        throw new InvalidDataException("Existing track " + Path.GetFileName(paths[index]) + " does not match the selected format or length. Choose a new base filename to start a separate batch.");
+                        throw new InvalidDataException(L.T("Het bestaande nummer ", "Existing track ") + Path.GetFileName(paths[index]) + L.T(" past niet bij het gekozen formaat of de lengte. Kies een nieuwe basisbestandsnaam voor een nieuwe reeks.", " does not match the selected format or length. Choose a new base filename to start a separate batch."));
                 }
             }
             return new GenerationBatchPlan

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 
@@ -12,8 +12,8 @@ namespace ElevenLabsMusicGenerator
         public static void WrapPcmFile(string sourcePath, string destinationPath, int sampleRate)
         {
             var dataLength = new FileInfo(sourcePath).Length;
-            if (dataLength <= 0) throw new InvalidDataException("ElevenLabs returned an empty PCM file.");
-            if (dataLength > uint.MaxValue - 44) throw new InvalidDataException("The PCM file is too large for a standard WAV container.");
+            if (dataLength <= 0) throw new InvalidDataException(L.T("ElevenLabs stuurde een leeg PCM-bestand.", "ElevenLabs returned an empty PCM file."));
+            if (dataLength > uint.MaxValue - 44) throw new InvalidDataException(L.T("Het PCM-bestand is te groot voor een WAV-bestand.", "The PCM file is too large for a standard WAV container."));
 
             using (var output = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None))
             using (var writer = new BinaryWriter(output, Encoding.ASCII, true))

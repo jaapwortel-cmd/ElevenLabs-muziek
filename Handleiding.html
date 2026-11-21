@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ElevenLabs Muziek en Spraak - Handleiding</title>
+<style>
+body { font-family: Segoe UI, sans-serif; line-height: 1.55; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; color: #171717; background: #fff; }
+h1, h2, h3 { line-height: 1.2; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #777; padding: .45rem; text-align: left; vertical-align: top; }
+code { font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+<main>
+<h1>ElevenLabs Muziek en Spraak</h1>
+<p>Met dit programma maak je via ElevenLabs muziek, geluidseffecten en spraak. Je typt wat je wilt, en ElevenLabs maakt het geluid. Het programma werkt helemaal met het toetsenbord en met schermlezers zoals NVDA, JAWS en Verteller.</p>
+<p>Dit is de Nederlandse versie van het programma van Andre Louis, met extra spraakfuncties. Het programma start in het Nederlands. Wil je Engels? Kies dan <strong>Opties, Taal (Language), English</strong>. Het programma start dan opnieuw in het Engels.</p>
+
+<h2 id="inhoud">Inhoud</h2>
+<ul>
+<li><a href="#nodig">Wat heb je nodig</a></li>
+<li><a href="#eerste-keer">De eerste keer</a></li>
+<li><a href="#muziek">Muziek maken</a></li>
+<li><a href="#geluidseffecten">Geluidseffecten maken</a></li>
+<li><a href="#video">Muziek bij een video</a></li>
+<li><a href="#plan">Compositieplan en songteksten</a></li>
+<li><a href="#spraak">Spraak en stemmen</a></li>
+<li><a href="#tegoed">Uitkomsten en tegoed</a></li>
+<li><a href="#afspelen">Afspelen, annuleren en fouten</a></li>
+<li><a href="#taal">Taal</a></li>
+<li><a href="#sneltoetsen">Sneltoetsen</a></li>
+<li><a href="#bestanden">Bestanden en mappen</a></li>
+<li><a href="#updates">Updates en versies</a></li>
+<li><a href="#makers">Makers</a></li>
+</ul>
+
+<h2 id="nodig">Wat heb je nodig</h2>
+<p>Je hebt een account bij <a href="https://elevenlabs.io/">ElevenLabs</a> nodig, met genoeg tegoed (credits). Je maakt daar een API-sleutel. Zo doe je dat:</p>
+<ol>
+<li>Log in bij ElevenLabs en ga naar <a href="https://elevenlabs.io/app/settings/api-keys">API Keys</a> (onder Developers).</li>
+<li>Maak een nieuwe sleutel.</li>
+<li>Geef de sleutel toegang tot de onderdelen die je wilt gebruiken: Music, Sound Effects, Text to Speech, Speech to Speech, Speech to Text, Voices, Dubbing, enzovoort.</li>
+<li>Zet ook <code>user_read</code> aan. Dan kan het programma je tegoed laten zien.</li>
+<li>Kopieer de hele sleutel. Je ziet hem maar een keer.</li>
+</ol>
+<p>Je kunt bij ElevenLabs een grens zetten op wat de sleutel mag uitgeven. Dat is veilig. Houd je sleutel geheim: zet hem nooit in een prompt of in een e-mail.</p>
+
+<h2 id="eerste-keer">De eerste keer</h2>
+<ol>
+<li>Kies <strong>Opties, Voorkeuren</strong> (Ctrl+komma).</li>
+<li>Ga naar het tabblad <strong>API-sleutel</strong> en plak je sleutel.</li>
+<li>Kies <strong>API-sleutel testen</strong>. Voor muziek kost de test niets. Voor geluidseffecten vraagt het programma eerst toestemming, want die test maakt een geluidje van een halve seconde en kan een klein beetje tegoed kosten. De uitkomst komt in een venster dat je regel voor regel kunt lezen. Escape sluit het.</li>
+<li>Kies op het tabblad <strong>Algemeen</strong> je <strong>Standaard uitvoermap</strong>. Daar komt alles wat je maakt. Je mag een pad uit de Verkenner plakken, ook met aanhalingstekens.</li>
+<li>Kies op het tabblad <strong>Geluid</strong> je geluidskaart en het standaardformaat.</li>
+<li>Kies <strong>OK</strong>.</li>
+</ol>
+<p>Verander je de uitvoermap niet, dan komt er een map <code>Music</code> naast het programma.</p>
+<p>Je API-sleutel wordt beveiligd bewaard in de map <code>User</code>, alleen voor jouw Windows-account op deze computer. Op een andere computer moet je de sleutel opnieuw invullen. Geef de map <code>User</code> nooit aan iemand anders.</p>
+
+<h2 id="muziek">Muziek maken</h2>
+<ol>
+<li>Typ in het vak <strong>Muziekbeschrijving</strong> (Alt+M) wat voor muziek je wilt. De stijl werkt het best in het Engels, bijvoorbeeld <code>calm piano with soft strings</code>. Een songtekst mag in het Nederlands.</li>
+<li>Kies het <strong>Model</strong> (Alt+D), de <strong>Lengte in seconden</strong> (Alt+L), het aantal <strong>Varianten</strong> (Alt+V) en of de muziek <strong>Instrumentaal</strong> (Alt+I) moet zijn, dus zonder zang.</li>
+<li>Kijk naar de <strong>Basisbestandsnaam</strong> (Alt+N). Laat je hem leeg, dan krijgt elk nummer de titel die ElevenLabs bedenkt, zoals <code>01 - Titel.wav</code>.</li>
+<li>Druk op <strong>Genereren</strong> of Ctrl+Enter.</li>
+<li>Je krijgt eerst een overzicht. Pas als je daar Ja kiest, gaat het verzoek naar ElevenLabs en kost het tegoed.</li>
+</ol>
+<p>Als je in een getalvak komt, is het getal al geselecteerd. Je kunt dus meteen een nieuw getal typen.</p>
+<p>Varianten krijgen een achtervoegsel zoals <code>_v1</code> en <code>_v2</code>. Er wordt ook een tekstbestand met je prompt bewaard.</p>
+<p>Werd een reeks onderbroken? Druk dan opnieuw op Genereren met dezelfde naam. Het programma maakt dan alleen de nummers die nog ontbreken. Bestaande nummers worden nooit overschreven.</p>
+
+<h2 id="geluidseffecten">Geluidseffecten maken</h2>
+<p>Kies in het vak <strong>Model</strong> (Alt+D) de keuze <strong>Geluidseffecten v3</strong>. Beschrijf het geluid in hooguit 450 tekens, bijvoorbeeld <code>rain on a tin roof</code>, en druk op Genereren.</p>
+<ul>
+<li><strong>Automatische duur</strong> (Alt+A): ElevenLabs kiest de lengte. Zet je dit uit, dan kies je zelf 0,5 tot 30 seconden.</li>
+<li><strong>Geluidseffect herhalen (loop)</strong> (Alt+R): het geluid kan naadloos herhaald worden.</li>
+<li><strong>Invloed van de prompt</strong> (Alt+E): van 0 tot 1. Hoe hoger, hoe preciezer de beschrijving wordt gevolgd.</li>
+</ul>
+<p>Je muziekprompt blijft bewaard als je naar geluidseffecten wisselt. Ga je terug naar muziek, dan staat hij er weer. Bij elke reeks geluidseffecten wordt een <code>.sfx.json</code>-bestand bewaard. Dat kun je later openen met <strong>Bestand, Prompt of plan openen</strong>.</p>
+
+<h2 id="video">Muziek bij een video</h2>
+<p>Kies <strong>Genereren, Muziek bij een video</strong> of druk op Ctrl+Shift+V.</p>
+<ol>
+<li>Voeg video's toe met <strong>Bestanden toevoegen</strong> (Alt+B). Met Omhoog en Omlaag zet je ze in de goede volgorde. Samen hooguit 10 video's, 200 MB en 10 minuten. MP4 werkt het best.</li>
+<li>Typ als je wilt een beschrijving en stijlen, elk op een eigen regel.</li>
+<li>Kies of je <strong>Geluidseffecten</strong> wilt, <strong>Losse sporen</strong>, en of het <strong>originele geluid als voorbeeld</strong> gebruikt mag worden.</li>
+<li>Kies het model en het formaat en druk op <strong>Genereren</strong>. Je moet het opsturen eerst bevestigen.</li>
+</ol>
+<p>Het maken kan een paar minuten duren, ook bij een korte video. Met <strong>Voortgang bekijken</strong> of F5 zie je hoe ver het is. De muziek komt in een eigen submap van je uitvoermap. Je video's zelf veranderen niet; je krijgt geluid, geen nieuwe video.</p>
+
+<h2 id="plan">Compositieplan en songteksten</h2>
+<p>Bij Muziek v2 en v2.5 kun je de muziek in delen opbouwen. Vink <strong>Compositieplan gebruiken</strong> (Alt+U) aan en kies <strong>Plan bewerken</strong> (Alt+P).</p>
+<p>Elk deel heeft een naam (zoals <code>Couplet</code> of <code>Refrein</code>), een lengte, een songtekst of korte aanwijzingen, stijlen die erin moeten, stijlen die er niet in mogen, en hoe goed het aansluit op de rest. Je kunt delen toevoegen, weghalen en verplaatsen. Samen mag het hooguit 10 minuten duren.</p>
+<ul>
+<li><strong>Voorstel maken uit de prompt</strong> (Alt+V): ElevenLabs maakt een plan op basis van je beschrijving. Dit kost geen tegoed voor muziek.</li>
+<li><strong>Plan of details openen</strong> (Alt+O): open een bewaard plan.</li>
+<li><strong>Plan exporteren</strong> (Alt+E): bewaar het plan als bestand.</li>
+</ul>
+<p>Voor een stuk zonder zang typ je een korte aanwijzing, zoals <code>{instrumental piano introduction}</code>. ElevenLabs probeert de songtekst te volgen, maar het is niet zeker dat elk woord precies zo gezongen wordt.</p>
+
+<h2 id="spraak">Spraak en stemmen</h2>
+<p>Kies <strong>Spraak en stemmen</strong> in de menubalk (Alt+S), of druk op Ctrl+T. Er opent een apart venster. Bovenaan staat de keuzelijst <strong>Functie</strong> (Alt+F). Kies daar wat je wilt doen; het deel eronder past zich aan. De focus springt nooit vanzelf ergens anders heen. Met Ctrl+PageDown en Ctrl+PageUp ga je naar de volgende of vorige functie.</p>
+<p>Overal geldt:</p>
+<ul>
+<li><strong>Ctrl+Enter</strong> doet de hoofdactie van de functie (maken, uitschrijven, zoeken, enzovoort).</li>
+<li><strong>Alt+P</strong> speelt af wat je net hebt gemaakt. <strong>Escape</strong> stopt het afspelen. Is er niets aan het spelen, dan stopt Escape het werk dat bezig is. Is er niets bezig, dan sluit Escape het venster.</li>
+<li>Onderaan staan de <strong>Meldingen</strong> (Alt+L). Je schermlezer leest nieuwe meldingen vanzelf voor, bijvoorbeeld als iets klaar is.</li>
+<li>Lang werk gebeurt op de achtergrond. Je kunt het venster gewoon blijven gebruiken.</li>
+<li>Alles wat je maakt wordt vanzelf bewaard in een submap van je uitvoermap, met een <code>.json</code>-bestand ernaast waarin staat hoe het gemaakt is. Met <strong>Opslaan als</strong> (Alt+A) bewaar je nog een kopie ergens anders.</li>
+<li>F1 geeft uitleg over het onderdeel met de focus.</li>
+</ul>
+
+<h3>Tekst naar spraak</h3>
+<p>Typ een <strong>Tekst</strong> (Alt+T), kies een <strong>Stem</strong> (Alt+S), en druk op <strong>Maken</strong> (Alt+M of Ctrl+Enter). Met het model eleven_v3 kun je aanwijzingen tussen haken zetten, zoals <code>[lacht]</code> of <code>[fluistert]</code>. Bij <strong>Taalcode</strong> kun je <code>nl</code> typen; leeg betekent automatisch. Je kunt een <strong>Uitspraaklijst</strong> kiezen en eigen stem-instellingen gebruiken (stabiliteit, gelijkenis, stijl en snelheid). Met <strong>Stemmen vernieuwen</strong> (Alt+V) haal je je stemmen opnieuw op. Map: <code>Spraak</code>.</p>
+
+<h3>Gesprek met meerdere stemmen</h3>
+<p>Kies een <strong>Stem voor de nieuwe regel</strong>, typ de <strong>Tekst van de nieuwe regel</strong> en druk op Enter. Zo bouw je regel voor regel een gesprek. In de lijst <strong>Regels van het gesprek</strong> (Alt+G) haal je met Delete een regel weg. Druk daarna op <strong>Maken</strong>. Map: <code>Gesprekken</code>.</p>
+
+<h3>Stemmen zoeken</h3>
+<p>Kies bij <strong>Waar zoeken</strong> (Alt+W) je eigen stemmen of de bibliotheek van ElevenLabs. Typ een zoekwoord, kies eventueel een geslacht en een taalcode, en druk op Enter of <strong>Zoeken</strong>. De stemmen staan in de lijst <strong>Uitkomsten</strong> (Alt+U). Enter speelt een voorbeeld af. <strong>Meer resultaten</strong> (Alt+R) haalt er meer op. Met <strong>Gebruik deze stem</strong> (Alt+S) kies je de stem bij tekst naar spraak, gesprek en stem omzetten. Werkt een stem uit de bibliotheek niet, kies dan eerst <strong>Toevoegen aan mijn stemmen</strong> (Alt+M).</p>
+
+<h3>Stem ontwerpen</h3>
+<p>Beschrijf de stem die je wilt, bijvoorbeeld <code>a warm, calm male voice of about 60</code>. In het Engels werkt dat vaak het best. Laat ElevenLabs zelf een voorbeeldtekst maken, of typ er zelf een van minstens 100 tekens. Druk op <strong>Maken</strong>. Je krijgt een paar <strong>Voorbeelden</strong> (Alt+R). Luister ze met Enter. Typ een naam en kies <strong>Stem bewaren</strong> (Alt+W). De stem staat daarna bij je eigen stemmen.</p>
+
+<h3>Stem klonen</h3>
+<p>Typ een naam, voeg een of meer opnames van de stem toe en vink aan dat je <strong>toestemming</strong> hebt van de persoon van wie de stem is. Je mag alleen een stem klonen als je die toestemming hebt. Druk op <strong>Klonen</strong> (Alt+K).</p>
+
+<h3>Stem omzetten</h3>
+<p>Kies een <strong>Opname</strong> (Alt+N) en een <strong>Stem</strong>. ElevenLabs zegt dan hetzelfde als in je opname, maar met de gekozen stem. Druk op <strong>Omzetten</strong> (Alt+O). Map: <code>Stem omzetten</code>.</p>
+
+<h3>Achtergrondgeluid weghalen</h3>
+<p>Kies een opname en druk op <strong>Geluid weghalen</strong> (Alt+W). ElevenLabs haalt muziek, ruis en ander geluid weg; alleen de stem blijft over. Map: <code>Schoon geluid</code>.</p>
+
+<h3>Spraak naar tekst</h3>
+<p>Kies een opname of video en druk op <strong>Uitschrijven</strong> (Alt+U). Met <strong>Sprekers herkennen</strong> zie je wie wat zegt (Spreker 1, Spreker 2). De tekst komt in het vak <strong>Resultaat</strong> (Alt+R) en wordt ook bewaard in de map <code>Teksten</code>. Je kunt de tekst, ondertitels (SRT) of alle gegevens (JSON) opslaan.</p>
+
+<h3>Nasynchroniseren</h3>
+<p>Kies een opname of video, of typ een webadres. Kies de <strong>Doeltaal</strong> (Alt+D) en druk op <strong>Starten</strong> (Alt+S). Dit kan lang duren. Het programma kijkt elke 20 seconden en zegt het als het klaar is. Druk dan op <strong>Downloaden</strong> (Alt+O). Map: <code>Nagesynchroniseerd</code>.</p>
+
+<h3>Tekst uitlijnen op een opname</h3>
+<p>Kies een opname en typ de tekst die erin gesproken wordt. Druk op <strong>Uitlijnen</strong> (Alt+U). Je krijgt ondertitels met de juiste tijden, die je als SRT-bestand kunt opslaan.</p>
+
+<h3>Uitspraaklijsten</h3>
+<p>Hiermee leer je ElevenLabs hoe een woord uitgesproken moet worden. Typ een naam en regels zoals <code>NVDA = en vee dee aa</code>, een per regel, en kies <strong>Lijst maken</strong>. Je kunt ook een PLS-bestand importeren. Bij Tekst naar spraak kies je de lijst bij <strong>Uitspraaklijst</strong>.</p>
+
+<h3>Geschiedenis</h3>
+<p>Hier staat alles wat je bij ElevenLabs met spraak hebt gemaakt, het nieuwste bovenaan. Enter speelt af, Delete verwijdert (na een vraag). Met <strong>Meer laden</strong> (Alt+M) zie je oudere items.</p>
+
+<h2 id="tegoed">Uitkomsten en tegoed</h2>
+<p>Bij <strong>Tegoed</strong> (Alt+T) in het hoofdvenster zie je hoeveel tegoed je nog hebt en wanneer het weer aangevuld wordt. F5 vernieuwt. Het programma kan niet zien hoeveel een los verzoek kost. Kijk daarvoor bij <a href="https://elevenlabs.io/app/developers/analytics/usage">ElevenLabs Usage Analytics</a> (Help, Gebruiksstatistieken, Alt+F1).</p>
+<table><thead><tr><th>Wat</th><th>Kost het tegoed?</th></tr></thead><tbody>
+<tr><td>Muziek maken</td><td>Ja, naar lengte en aantal varianten.</td></tr>
+<tr><td>Geluidseffecten maken</td><td>Ja, per geluidseffect.</td></tr>
+<tr><td>Spraak, gesprek, stem omzetten, ontwerpen, klonen, uitschrijven, nasynchroniseren</td><td>Ja. Hoeveel hangt af van je abonnement en de lengte.</td></tr>
+<tr><td>Voorstel voor een plan, test voor muziek, tegoed bekijken, stemmen zoeken</td><td>Nee.</td></tr>
+<tr><td>Test voor geluidseffecten</td><td>Een heel klein beetje, na je toestemming.</td></tr>
+</tbody></table>
+<p>Zet je in Voorkeuren <strong>Songteksten en details bewaren</strong> aan, dan komen songteksten en details in de submap <code>Lyrics</code>. Dat is de tekst die ElevenLabs terugstuurt, niet een uitgeschreven versie van wat er gezongen wordt.</p>
+
+<h2 id="afspelen">Afspelen, annuleren en fouten</h2>
+<p>Gemaakte geluiden staan in de lijst <strong>Gemaakte geluiden</strong>. Enter of Alt+Y speelt af, Escape stopt. Op het tabblad Geluid in Voorkeuren kun je kiezen voor <strong>Nieuwe geluiden vanzelf na elkaar afspelen</strong> en voor een <strong>Geluidje als het klaar is</strong>.</p>
+<p>Escape tijdens het genereren annuleert. Nummers die al klaar waren blijven bewaard; halve bestanden worden weggehaald. Let op: een verzoek dat ElevenLabs al heeft aangenomen, kan toch tegoed kosten.</p>
+<p>Gaat er iets mis, dan staat de uitleg in de <strong>Statusberichten</strong> (Alt+C). De details staan ook in het logboek in de map <code>User\Logs</code>.</p>
+
+<h2 id="taal">Taal</h2>
+<p>Het programma start in het Nederlands. Kies <strong>Opties, Taal (Language)</strong> en dan <strong>English</strong> of <strong>Nederlands</strong>. Het programma vraagt of het opnieuw mag starten; je ontwerp-prompt blijft bewaard. In het Engels heet de handleiding <code>Manual.html</code>.</p>
+
+<h2 id="sneltoetsen">Sneltoetsen</h2>
+<p>In keuzelijsten kun je meerdere letters typen om een naam te vinden.</p>
+<table>
+<thead><tr><th>Wat</th><th>Toets</th></tr></thead>
+<tbody>
+<tr><td>Nieuwe prompt</td><td>Ctrl+N</td></tr>
+<tr><td>Prompt of plan openen</td><td>Ctrl+O</td></tr>
+<tr><td>Prompt opslaan</td><td>Ctrl+S</td></tr>
+<tr><td>Prompt opslaan als</td><td>Ctrl+Shift+S</td></tr>
+<tr><td>Naar de muziekbeschrijving</td><td>Alt+M</td></tr>
+<tr><td>Naar het model</td><td>Alt+D</td></tr>
+<tr><td>Lengte</td><td>Alt+L</td></tr>
+<tr><td>Varianten</td><td>Alt+V</td></tr>
+<tr><td>Instrumentaal</td><td>Alt+I</td></tr>
+<tr><td>Compositieplan gebruiken</td><td>Alt+U</td></tr>
+<tr><td>Plan bewerken</td><td>Alt+P</td></tr>
+<tr><td>Automatische duur (geluidseffect)</td><td>Alt+A</td></tr>
+<tr><td>Geluidseffect herhalen</td><td>Alt+R</td></tr>
+<tr><td>Invloed van de prompt</td><td>Alt+E</td></tr>
+<tr><td>Basisbestandsnaam</td><td>Alt+N</td></tr>
+<tr><td>Naar het tegoed</td><td>Alt+T</td></tr>
+<tr><td>Naar de statusberichten</td><td>Alt+C</td></tr>
+<tr><td>Tegoed vernieuwen</td><td>F5</td></tr>
+<tr><td>Uitvoermap openen</td><td>Ctrl+Shift+O</td></tr>
+<tr><td>Genereren</td><td>Ctrl+Enter</td></tr>
+<tr><td>Annuleren of afspelen stoppen</td><td>Escape</td></tr>
+<tr><td>Muziek bij een video</td><td>Ctrl+Shift+V</td></tr>
+<tr><td>Spraak en stemmen</td><td>Ctrl+T</td></tr>
+<tr><td>Voorkeuren</td><td>Ctrl+komma</td></tr>
+<tr><td>Geluidsinstellingen</td><td>Ctrl+Shift+U</td></tr>
+<tr><td>Gekozen geluid afspelen</td><td>Alt+Y, of Enter in de lijst Gemaakte geluiden</td></tr>
+<tr><td>Hulp bij het onderdeel met de focus</td><td>F1</td></tr>
+<tr><td>Zoeken naar updates</td><td>Shift+F1</td></tr>
+<tr><td>Projectpagina</td><td>Ctrl+F1</td></tr>
+<tr><td>Gebruiksstatistieken</td><td>Alt+F1</td></tr>
+</tbody>
+</table>
+<p>In het venster Spraak en stemmen: Alt+F (Functie), Alt+L (Meldingen), Ctrl+Enter (hoofdactie), Alt+P (afspelen), Alt+A (opslaan als), Ctrl+PageDown en Ctrl+PageUp (andere functie), Escape (stoppen of sluiten), F1 (hulp).</p>
+
+<h2 id="bestanden">Bestanden en mappen</h2>
+<ul>
+<li><code>ElevenLabsMusicGenerator.ini</code>: je voorkeuren.</li>
+<li><code>Music</code>: de standaard uitvoermap. Daarin submappen zoals <code>Lyrics</code>, <code>Spraak</code>, <code>Gesprekken</code>, <code>Stemvoorbeelden</code>, <code>Stem omzetten</code>, <code>Schoon geluid</code>, <code>Teksten</code>, <code>Nagesynchroniseerd</code> en <code>Geschiedenis</code>.</li>
+<li><code>User</code>: je beveiligde API-sleutel, ontwerp-prompts, de gekozen taal (<code>Taal.txt</code>) en het logboek. Houd deze map privé.</li>
+</ul>
+<p>Het programma is draagbaar: je kunt de hele map verplaatsen, ook naar een USB-stick. Je API-sleutel moet je op een andere computer wel opnieuw invullen.</p>
+
+<h2 id="updates">Updates en versies</h2>
+<p>Kies <strong>Help, Versiegeschiedenis</strong> om te lezen wat er nieuw is. Daar hoef je geen internet voor te hebben.</p>
+<p><strong>Help, Zoeken naar updates</strong> kijkt op de projectpagina van deze Nederlandse versie. Een update wordt alleen geinstalleerd als hij een geldige handtekening heeft.</p>
+
+<h2 id="makers">Makers</h2>
+<p>Het muziekprogramma is gemaakt door Andre Louis (met Codex), onder de MIT-licentie. Kijk op <a href="https://onj.me/software">zijn website</a> voor meer programma's, of steun hem via <strong>Help, Doneren aan Andre Louis</strong>.</p>
+<p>Het venster Spraak en stemmen is gemaakt naar het idee en de functies van ElevenLabs Media Suite (MIT-licentie, ElevenLabs Media Suite contributors), opnieuw gebouwd in C#.</p>
+<p>De Nederlandse versie is van Jaap Wortel, gemaakt met Claude. Afspelen gebeurt met NAudio van Mark Heath en anderen (Microsoft Public License). Alle licenties staan in <code>LICENSE.txt</code>.</p>
+</main>
+</body>
+</html>
