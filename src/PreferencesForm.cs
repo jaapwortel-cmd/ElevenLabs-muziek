@@ -77,7 +77,7 @@ namespace ElevenLabsMusicGenerator
             playbackDeviceComboBox = AudioDevicesForm.DeviceList(settings.PlaybackDevice);
             autoPlayCheckBox = new CheckBox { Text = L.T("Nieuwe geluiden &vanzelf na elkaar afspelen", "Play new &generations automatically in sequence"), AutoSize = true, AccessibleName = L.T("Nieuwe geluiden vanzelf na elkaar afspelen", "Play new generations automatically in sequence"), Checked = settings.AutoPlayGenerations };
             completionSoundCheckBox = new CheckBox { Text = L.T("&Geluidje als het klaar is", "Play a &completion sound"), AutoSize = true, AccessibleName = L.T("Geluidje als het klaar is", "Play a completion sound"), Checked = settings.CompletionSound };
-            AddLabeledControl(audio, L.T("&Geluidskaart voor afspelen:", "Playback &device:"), playbackDeviceComboBox);
+            AddLabeledControl(audio, L.T("Geluids&kaart voor afspelen:", "Playback &device:"), playbackDeviceComboBox);
             AddLabeledControl(audio, L.T("Standaard&formaat:", "Default &format:"), formatComboBox);
             AddFullWidthControl(audio, autoPlayCheckBox);
             AddFullWidthControl(audio, completionSoundCheckBox); audioPage.Controls.Add(audio);
@@ -124,10 +124,10 @@ namespace ElevenLabsMusicGenerator
             updatesPage.Controls.Add(updates);
 
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
-            var cancelButton = NewButton(L.T("&Annuleren", "&Cancel"), L.T("Wijzigingen niet bewaren", "Cancel preference changes"));
+            var cancelButton = NewButton(L.T("&Annuleren", "Cancel"), L.T("Wijzigingen niet bewaren", "Cancel preference changes"));
             cancelButton.DialogResult = DialogResult.Cancel;
             cancelButton.TabIndex = 1;
-            var okButton = NewButton(L.T("&OK", "&OK"), L.T("Voorkeuren bewaren", "Save preferences"));
+            var okButton = NewButton(L.T("&OK", "OK"), L.T("Voorkeuren bewaren", "Save preferences"));
             okButton.Click += OkButtonClick;
             okButton.TabIndex = 0;
             buttons.Controls.Add(cancelButton);
