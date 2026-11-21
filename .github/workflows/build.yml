@@ -64,8 +64,20 @@ jobs:
           $p = Start-Process -FilePath 'uit\portable\ElevenLabsMusicGenerator.exe' -PassThru
           Start-Sleep -Seconds 8
           if ($p.HasExited) { throw ('Het programma stopte meteen, code ' + $p.ExitCode) }
-          [void]$p.CloseMainWindow()
-          if (-not $p.WaitForExit(15000)) { $p.Kill(); throw 'Het programma sloot niet af.' }
+          # Welke vensters staan er open? (een melding bij de start houdt het sluiten tegen)
+          Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+          $voorwaarde = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ProcessIdProperty, $p.Id)
+          foreach ($v in [System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children, $voorwaarde)) {
+            Write-Host ('Venster: ' + $v.Current.Name)
+            foreach ($t in $v.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) { if ($t.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text -or $t.Current.ControlType -eq [System.Windows.Automation.ControlType]::Window) { Write-Host ('  ' + $t.Current.Name) } }
+          }
+          # Zonder API-sleutel opent Voorkeuren vanzelf (zo bedoeld). Sluit eerst dat venster, dan het hoofdvenster.
+          for ($i = 0; $i -lt 4 -and -not $p.HasExited; $i++) {
+            $p.Refresh()
+            [void]$p.CloseMainWindow()
+            [void]$p.WaitForExit(4000)
+          }
+          if (-not $p.HasExited) { $p.Kill(); throw 'Het programma sloot niet af.' }
           Write-Host 'Opstarten en afsluiten: goed.'
 
       - name: Toegankelijkheid (namen, Tab-volgorde en menu's voor de schermlezer)

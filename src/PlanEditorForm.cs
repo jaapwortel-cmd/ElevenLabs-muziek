@@ -152,7 +152,7 @@ namespace ElevenLabsMusicGenerator
             section.Body = ForPlan(wordsBox.Text);
             section.PositiveStyles = ForPlan(positiveBox.Text);
             section.NegativeStyles = ForPlan(negativeBox.Text);
-            section.ContextAdherence = Adherences[Math.Max(0, adherenceBox.SelectedIndex)];
+            section.ContextAdherence = Adherences[Math.Max(0, Math.Min(Adherences.Length - 1, adherenceBox.SelectedIndex))];
             sectionList.Refresh();
             SetStatus(L.T("Samen ", "Total ") + workingPlan.TotalSeconds + L.T(" seconden in ", " seconds across ") + workingPlan.Sections.Count + L.T(" delen.", " sections."));
         }
