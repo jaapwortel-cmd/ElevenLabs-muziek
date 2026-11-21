@@ -71,12 +71,13 @@ jobs:
             Write-Host ('Venster: ' + $v.Current.Name)
             foreach ($t in $v.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) { if ($t.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text -or $t.Current.ControlType -eq [System.Windows.Automation.ControlType]::Window) { Write-Host ('  ' + $t.Current.Name) } }
           }
-          # Zonder API-sleutel opent Voorkeuren vanzelf (zo bedoeld). Sluit eerst dat venster, dan het hoofdvenster.
-          for ($i = 0; $i -lt 4 -and -not $p.HasExited; $i++) {
-            $p.Refresh()
-            [void]$p.CloseMainWindow()
-            [void]$p.WaitForExit(4000)
+          # Zonder API-sleutel opent Voorkeuren vanzelf (zo bedoeld). Sluit eerst die vensters, dan het hoofdvenster.
+          foreach ($v in [System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children, $voorwaarde)) {
+            $ramen = $v.FindAll([System.Windows.Automation.TreeScope]::Descendants, (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Window)))
+            foreach ($r in $ramen) { Write-Host ('Sluiten: ' + $r.Current.Name); $r.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close(); Start-Sleep -Seconds 1 }
           }
+          [void]$p.CloseMainWindow()
+          [void]$p.WaitForExit(15000)
           if (-not $p.HasExited) { $p.Kill(); throw 'Het programma sloot niet af.' }
           Write-Host 'Opstarten en afsluiten: goed.'
 
